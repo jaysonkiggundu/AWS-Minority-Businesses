@@ -1,0 +1,328 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Backend infrastructure for business directory capstone project'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues: [dev, prod]
+    Description: Environment name for resource naming
+
+Resources:
+  # ===== AUTHENTICATION =====
+  
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub '${Environment}-business-directory-users'
+      AutoVerifiedAttributes:
+        - email
+      UsernameAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireUppercase: true
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: false
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Required: true
+          Mutable: true
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: !Sub '${Environment}-business-directory-client'
+      UserPoolId: !Ref UserPool
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+
+  # ===== API LAYER =====
+  
+  GraphQLApi:
+    Type: AWS::AppSync::GraphQLApi
+    Properties:
+      Name: !Sub '${Environment}-business-directory-api'
+      AuthenticationType: AMAZON_COGNITO_USER_POOLS
+      UserPoolConfig:
+        UserPoolId: !Ref UserPool
+        AwsRegion: !Ref AWS::Region
+        DefaultAction: ALLOW
+
+  GraphQLSchema:
+    Type: AWS::AppSync::GraphQLSchema
+    Properties:
+      ApiId: !Ref GraphQLApi
+      Definition: |
+        type Business {
+          id: ID!
+          name: String!
+          description: String
+          category: String!
+          location: String!
+          website: String
+          email: String
+          phone: String
+          createdAt: String!
+          updatedAt: String!
+        }
+
+        type Query {
+          listBusinesses: [Business]
+          getBusiness(id: ID!): Business
+        }
+
+        type Mutation {
+          createBusiness(input: CreateBusinessInput!): Business
+          updateBusiness(input: UpdateBusinessInput!): Business
+          deleteBusiness(id: ID!): Business
+        }
+
+        input CreateBusinessInput {
+          name: String!
+          description: String
+          category: String!
+          location: String!
+          website: String
+          email: String
+          phone: String
+        }
+
+        input UpdateBusinessInput {
+          id: ID!
+          name: String
+          description: String
+          category: String
+          location: String
+          website: String
+          email: String
+          phone: String
+        }
+
+  BusinessDataSource:
+    Type: AWS::AppSync::DataSource
+    Properties:
+      ApiId: !Ref GraphQLApi
+      Name: BusinessTable
+      Type: AMAZON_DYNAMODB
+      DynamoDBConfig:
+        TableName: !Ref BusinessTable
+        AwsRegion: !Ref AWS::Region
+      ServiceRoleArn: !GetAtt AppSyncServiceRole.Arn
+
+  AppSyncServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: appsync.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: DynamoDBAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                Resource: !GetAtt BusinessTable.Arn
+
+  ListBusinessesResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref GraphQLApi
+      TypeName: Query
+      FieldName: listBusinesses
+      DataSourceName: !GetAtt BusinessDataSource.Name
+      RequestMappingTemplate: |
+        {
+          "version": "2017-02-28",
+          "operation": "Scan"
+        }
+      ResponseMappingTemplate: |
+        $util.toJson($context.result.items)
+
+  GetBusinessResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref GraphQLApi
+      TypeName: Query
+      FieldName: getBusiness
+      DataSourceName: !GetAtt BusinessDataSource.Name
+      RequestMappingTemplate: |
+        {
+          "version": "2017-02-28",
+          "operation": "GetItem",
+          "key": {
+            "id": $util.dynamodb.toDynamoDBJson($context.arguments.id)
+          }
+        }
+      ResponseMappingTemplate: |
+        $util.toJson($context.result)
+
+  CreateBusinessResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref GraphQLApi
+      TypeName: Mutation
+      FieldName: createBusiness
+      DataSourceName: !GetAtt BusinessDataSource.Name
+      RequestMappingTemplate: |
+        #set($id = $util.autoId())
+        #set($now = $util.time.nowISO8601())
+        {
+          "version": "2017-02-28",
+          "operation": "PutItem",
+          "key": {
+            "id": $util.dynamodb.toDynamoDBJson($id)
+          },
+          "attributeValues": {
+            "id": $util.dynamodb.toDynamoDBJson($id),
+            "name": $util.dynamodb.toDynamoDBJson($context.arguments.input.name),
+            "category": $util.dynamodb.toDynamoDBJson($context.arguments.input.category),
+            "location": $util.dynamodb.toDynamoDBJson($context.arguments.input.location),
+            "createdAt": $util.dynamodb.toDynamoDBJson($now),
+            "updatedAt": $util.dynamodb.toDynamoDBJson($now)
+            #if($context.arguments.input.description)
+            ,"description": $util.dynamodb.toDynamoDBJson($context.arguments.input.description)
+            #end
+            #if($context.arguments.input.website)
+            ,"website": $util.dynamodb.toDynamoDBJson($context.arguments.input.website)
+            #end
+            #if($context.arguments.input.email)
+            ,"email": $util.dynamodb.toDynamoDBJson($context.arguments.input.email)
+            #end
+            #if($context.arguments.input.phone)
+            ,"phone": $util.dynamodb.toDynamoDBJson($context.arguments.input.phone)
+            #end
+          }
+        }
+      ResponseMappingTemplate: |
+        $util.toJson($context.result)
+
+  UpdateBusinessResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref GraphQLApi
+      TypeName: Mutation
+      FieldName: updateBusiness
+      DataSourceName: !GetAtt BusinessDataSource.Name
+      RequestMappingTemplate: |
+        #set($now = $util.time.nowISO8601())
+        {
+          "version": "2017-02-28",
+          "operation": "UpdateItem",
+          "key": {
+            "id": $util.dynamodb.toDynamoDBJson($context.arguments.input.id)
+          },
+          "update": {
+            "expression": "SET updatedAt = :now",
+            "expressionNames": {},
+            "expressionValues": {
+              ":now": $util.dynamodb.toDynamoDBJson($now)
+            }
+          }
+        }
+        #if($context.arguments.input.name)
+          $util.qr($context.result.update.expression = $context.result.update.expression + ", #name = :name")
+          $util.qr($context.result.update.expressionNames.put("#name", "name"))
+          $util.qr($context.result.update.expressionValues.put(":name", $util.dynamodb.toDynamoDBJson($context.arguments.input.name)))
+        #end
+        #if($context.arguments.input.description)
+          $util.qr($context.result.update.expression = $context.result.update.expression + ", description = :description")
+          $util.qr($context.result.update.expressionValues.put(":description", $util.dynamodb.toDynamoDBJson($context.arguments.input.description)))
+        #end
+        #if($context.arguments.input.category)
+          $util.qr($context.result.update.expression = $context.result.update.expression + ", category = :category")
+          $util.qr($context.result.update.expressionValues.put(":category", $util.dynamodb.toDynamoDBJson($context.arguments.input.category)))
+        #end
+        #if($context.arguments.input.location)
+          $util.qr($context.result.update.expression = $context.result.update.expression + ", #location = :location")
+          $util.qr($context.result.update.expressionNames.put("#location", "location"))
+          $util.qr($context.result.update.expressionValues.put(":location", $util.dynamodb.toDynamoDBJson($context.arguments.input.location)))
+        #end
+        #if($context.arguments.input.website)
+          $util.qr($context.result.update.expression = $context.result.update.expression + ", website = :website")
+          $util.qr($context.result.update.expressionValues.put(":website", $util.dynamodb.toDynamoDBJson($context.arguments.input.website)))
+        #end
+        #if($context.arguments.input.email)
+          $util.qr($context.result.update.expression = $context.result.update.expression + ", email = :email")
+          $util.qr($context.result.update.expressionValues.put(":email", $util.dynamodb.toDynamoDBJson($context.arguments.input.email)))
+        #end
+        #if($context.arguments.input.phone)
+          $util.qr($context.result.update.expression = $context.result.update.expression + ", phone = :phone")
+          $util.qr($context.result.update.expressionValues.put(":phone", $util.dynamodb.toDynamoDBJson($context.arguments.input.phone)))
+        #end
+        $util.toJson($context.result)
+      ResponseMappingTemplate: |
+        $util.toJson($context.result)
+
+  DeleteBusinessResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref GraphQLApi
+      TypeName: Mutation
+      FieldName: deleteBusiness
+      DataSourceName: !GetAtt BusinessDataSource.Name
+      RequestMappingTemplate: |
+        {
+          "version": "2017-02-28",
+          "operation": "DeleteItem",
+          "key": {
+            "id": $util.dynamodb.toDynamoDBJson($context.arguments.id)
+          }
+        }
+      ResponseMappingTemplate: |
+        $util.toJson($context.result)
+
+  # ===== DATA STORAGE =====
+  
+  BusinessTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${Environment}-business-directory'
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+
+Outputs:
+  GraphQLApiUrl:
+    Description: GraphQL API URL
+    Value: !GetAtt GraphQLApi.GraphQLUrl
+    Export:
+      Name: !Sub '${Environment}-GraphQLApiUrl'
+
+  CognitoUserPoolId:
+    Description: Cognito User Pool ID
+    Value: !Ref UserPool
+    Export:
+      Name: !Sub '${Environment}-CognitoUserPoolId'
+
+  CognitoUserPoolClientId:
+    Description: Cognito User Pool Client ID
+    Value: !Ref UserPoolClient
+    Export:
+      Name: !Sub '${Environment}-CognitoUserPoolClientId'
+
+  DynamoDBTableName:
+    Description: DynamoDB table name
+    Value: !Ref BusinessTable
+    Export:
+      Name: !Sub '${Environment}-DynamoDBTableName'
