@@ -1,10 +1,26 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User, LogOut } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { AuthModal } from "@/components/AuthModal";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Navigation = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const { user, isAuthenticated, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -27,12 +43,37 @@ const Navigation = () => {
           <Link to="/about" className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors">
             About
           </Link>
-          <Button variant="ghost" size="sm">
-            Sign In
-          </Button>
-          <Button size="sm" className="bg-gradient-to-r from-primary to-primary-glow hover:opacity-90">
-            Get Started
-          </Button>
+          
+          {isAuthenticated ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  {user?.username}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/founders">Dashboard</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSignOut}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" onClick={() => setAuthModalOpen(true)}>
+                Sign In
+              </Button>
+              <Button size="sm" className="bg-gradient-to-r from-primary to-primary-glow hover:opacity-90" onClick={() => setAuthModalOpen(true)}>
+                Get Started
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -70,16 +111,38 @@ const Navigation = () => {
               About
             </Link>
             <div className="flex flex-col space-y-2 pt-2">
-              <Button variant="ghost" size="sm" className="w-full">
-                Sign In
-              </Button>
-              <Button size="sm" className="w-full bg-gradient-to-r from-primary to-primary-glow hover:opacity-90">
-                Get Started
-              </Button>
+              {isAuthenticated ? (
+                <>
+                  <div className="py-2 text-sm font-medium">
+                    Signed in as {user?.username}
+                  </div>
+                  <Button variant="ghost" size="sm" className="w-full justify-start" asChild>
+                    <Link to="/founders" onClick={() => setMobileMenuOpen(false)}>
+                      <User className="mr-2 h-4 w-4" />
+                      Dashboard
+                    </Link>
+                  </Button>
+                  <Button variant="ghost" size="sm" className="w-full justify-start" onClick={handleSignOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="ghost" size="sm" className="w-full" onClick={() => setAuthModalOpen(true)}>
+                    Sign In
+                  </Button>
+                  <Button size="sm" className="w-full bg-gradient-to-r from-primary to-primary-glow hover:opacity-90" onClick={() => setAuthModalOpen(true)}>
+                    Get Started
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
       )}
+      
+      <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
     </nav>
   );
 };
