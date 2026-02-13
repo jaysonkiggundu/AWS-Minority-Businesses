@@ -1,169 +1,248 @@
-# Risk & Technical Debt Inventory
-**Module 1 – Capstone II Reset: From Prototypes to Products**  
-**Project:** AWS CAMP Minority Businesses  
-**Team:** Group 7
+# Risk & Technical Debt Inventory  
+## Module 1 – Capstone II Reset: From Prototypes to Products  
+
+**Project:** AWS CAMP Minority Business Directory  
+**Team:** Group 7  
+**Course:** Senior Capstone II  
 
 ---
 
 ## Overview & Objective
 
-During Senior Capstone I, our team leveraged AI-assisted tools to rapidly produce a functional prototype of the AWS CAMP Minority Business Directory. While this approach enabled fast visual and interaction-level progress, it prioritized speed over long-term maintainability.
+During Senior Capstone I, our team leveraged AI-assisted development tools to rapidly prototype the AWS CAMP Minority Business Directory. This approach accelerated visible feature development but prioritized speed over long-term maintainability, verification, and architectural governance.
 
-As we transition into Senior Capstone II, our role shifts from **feature builders** to **system orchestrators**. This document represents a deliberate “project reset,” where we pause feature development to audit the structural health of our current codebase. The goal is to identify technical debt introduced during AI-assisted prototyping and assess project risks inherent in an agentic development workflow so that future development is intentional, secure, and scalable.
+As we transition into Senior Capstone II, our role shifts from rapid feature builders to deliberate system stewards. This document formalizes that shift by:
 
-This inventory serves as the bridge between our initial prototype and a production-quality system.
+- Auditing technical debt introduced during AI-assisted prototyping  
+- Evaluating AI-specific risks using required risk categories  
+- Converting risks into measurable engineering backlog items  
+- Linking remediation work to formal requirements  
+- Establishing verification and accountability controls  
+
+This inventory represents a controlled reset from prototype to production-quality engineering.
 
 ---
 
-## Part 1: Technical Debt Audit
+# Part 1: Technical Debt Audit (Operationalized)
 
-The following technical debt items were identified through manual inspection of the AI-generated codebase, supported by AI-assisted code review tools. Each item represents a structural limitation that must be addressed before scaling the system.
+Each identified debt item is mapped to a formal requirement and converted into actionable backlog work.
 
 ---
 
-### 1. Missing Backend Integration (Mock Data Dependency)
+## 1. Mock Data Dependency
 
 **Category:** Architectural Debt  
+**Linked Requirement:** FR-5 – Business data must be stored and retrieved reliably  
+**Mapped Feature:** F-5 – Database Integration  
 
-**Description:**  
-The current frontend relies on mock or hardcoded data for business listings and user workflows. Although UI components are well structured, there is no live backend API or persistent data layer connected to the application.
+### Description  
+The frontend currently relies on mock or hardcoded business listing data. While UI components are structured, no persistent backend integration exists.
 
-**Why This Is Debt:**  
-AI-generated prototypes often optimize for visual completeness rather than system integrity. Continuing development on mock data would create fragile logic and increase refactoring cost once real backend integration begins.
+### Why This Is Debt  
+AI-assisted prototypes optimize for visible functionality rather than structural integrity. Continuing development on mock data introduces schema fragility and refactor risk once live backend services are connected.
 
-**Remediation Plan:**  
-Integrate AWS AppSync and DynamoDB to replace mock data with real GraphQL queries and mutations. Enforce a clear separation between presentation logic and data access.
+### Backlog Operationalization
 
----
+**Issue Title:** Replace Mock Data with AWS AppSync + DynamoDB Integration  
+**Priority:** High  
+**Sprint Target:** Sprint 3  
 
-### 2. Incomplete Authentication & Authorization Flow
+**Acceptance Criteria**
+- Apollo Client connected to AppSync endpoint  
+- `listBusinesses` GraphQL query retrieves live DynamoDB data  
+- All mock data removed from repository  
+- Loading and error states implemented  
+- Deployment validated in AWS environment  
 
-**Category:** Architectural Debt  
-
-**Description:**  
-Authentication-related UI elements exist, but there is no end-to-end enforcement of authentication or role-based authorization. User roles are not consistently validated across routes and components.
-
-**Why This Is Debt:**  
-Security assumptions are implicit rather than enforced, creating risk as protected routes and sensitive features are added.
-
-**Remediation Plan:**  
-Complete Amazon Cognito integration and implement authentication guards and role-based access checks throughout the application.
-
----
-
-### 3. Lack of Automated Testing
-
-**Category:** Test Debt  
-
-**Description:**  
-The codebase currently contains no unit tests, integration tests, or verification layers for AI-generated components.
-
-**Why This Is Debt:**  
-Without tests, AI-generated logic cannot be safely refactored or extended. Bugs or hallucinated logic may go undetected and compound over time.
-
-**Remediation Plan:**  
-Introduce baseline unit testing for core components and integration tests once backend APIs are connected. Adopt a “trust but verify” approach to AI-generated code.
+**Verification**
+- Successful query in deployed environment  
+- Peer-reviewed pull request  
+- Manual validation of CRUD flow  
 
 ---
 
-### 4. Weak Error Handling and User Feedback
+## 2. Incomplete Authentication & Authorization Enforcement
 
-**Category:** Architectural Debt  
+**Category:** Architectural / Security Debt  
+**Linked Requirement:** FR-4 – Users can securely sign up and log in  
+**Mapped Feature:** F-4 – Authentication System  
 
-**Description:**  
-The application lacks global error boundaries, loading states, and standardized error messaging. Runtime failures would result in silent UI breaks or confusing behavior.
+### Description  
+Authentication-related UI elements exist, but role-based access enforcement is incomplete and inconsistently applied.
 
-**Why This Is Debt:**  
-Poor error handling reduces reliability, complicates debugging, and negatively impacts user experience.
+### Why This Is Debt  
+Security assumptions are currently implicit rather than enforced at the system boundary.
 
-**Remediation Plan:**  
-Add error boundaries, loading indicators, and consistent error-handling patterns across the application.
+### Backlog Operationalization
 
----
+**Issue Title:** Complete End-to-End Cognito Integration  
+**Priority:** High  
+**Sprint Target:** Sprint 3  
 
-### 5. Documentation and Traceability Gaps
+**Acceptance Criteria**
+- Amazon Cognito fully integrated  
+- Protected routes guarded client-side  
+- Role-based checks enforced in AppSync resolvers  
+- Unauthorized access attempts handled gracefully  
 
-**Category:** Documentation Debt  
-
-**Description:**  
-AI-generated code lacks contextual comments explaining design intent, and traceability from Agile requirements to specific components is limited.
-
-**Why This Is Debt:**  
-Future contributors will struggle to understand system decisions, increasing onboarding time and refactor risk.
-
-**Remediation Plan:**  
-Improve inline documentation, document architectural decisions, and maintain traceability through the RTM and GitHub issues.
-
----
-
-## Part 2: AI & System Risk Assessment
-
-Because this project uses AI-assisted and agentic workflows, risk assessment must go beyond traditional software concerns.
+**Verification**
+- Role-switch testing  
+- Access boundary validation  
+- Security review checklist completed  
 
 ---
 
-### 1. Reliability / Hallucination Risk
+## 3. Absence of Testing & Verification Layer
 
-**Risk:**  
-AI-generated components may contain subtle logical errors or incomplete assumptions that are not immediately visible in the UI.
+**Category:** Quality Debt  
+**Linked Requirement:** QR-2 – Core logic must be testable  
+**Mapped Feature:** F-11 – Introduce Basic Unit Tests  
 
-**Impact:**  
-Undetected bugs may propagate as new features are layered on top, increasing refactoring cost later in the semester.
+### Description  
+The current codebase contains no unit or integration tests for AI-generated components.
 
-**Mitigation Strategy:**  
-Introduce verification checkpoints, testing, and human code reviews for all AI-assisted contributions.
+### Why This Is Debt  
+AI-generated code increases the probability of subtle logical errors. Without verification, defects compound as features scale.
 
----
+### Backlog Operationalization
 
-### 2. Security & Ethics Risk
+**Issue Title:** Introduce Baseline Unit Testing  
+**Priority:** High  
+**Sprint Target:** Sprint 3  
 
-**Risk:**  
-Incomplete authentication and reliance on generated code may expose the system to insecure data handling or unauthorized access patterns.
+**Acceptance Criteria**
+- Core business logic components tested  
+- Minimum 70% coverage on core workflows  
+- Tests integrated into CI pipeline  
 
-**Impact:**  
-Potential data leakage, improper access control, and erosion of user trust.
-
-**Mitigation Strategy:**  
-Define clear trust boundaries and require human oversight for all authentication, authorization, and security-critical logic.
-
----
-
-### 3. Dependency & Platform Risk
-
-**Risk:**  
-Reliance on external platform-generated structures and assumptions may limit flexibility if platform templates or APIs change.
-
-**Impact:**  
-Future refactors may become more expensive if the team does not assert ownership over the architecture.
-
-**Mitigation Strategy:**  
-Gradually decouple generated code from platform-specific assumptions and treat external platform output as scaffolding, not a long-term dependency. **Note: This risk has been mitigated by removing external platform dependencies and making the project self-contained.**
+**Verification**
+- Coverage report generated  
+- CI build passes  
+- Peer review of test quality  
 
 ---
 
-## Part 3: Backlog Integration
+## 4. Weak Error Handling & Observability
 
-To operationalize this audit, the team will convert the most critical technical debt items into actionable backlog work.
+**Category:** Reliability / Quality Debt  
+**Linked Requirement:** QR-3 – Errors must be handled gracefully  
+**Mapped Feature:** F-12 – Error Handling Improvements  
 
-### Selected Backlog Items
+### Description  
+The application lacks standardized error boundaries, structured logging, and consistent failure feedback.
 
-The following technical debt items will be added to the GitHub Project Board as issues:
-
-1. **Replace Mock Data with AppSync + DynamoDB Integration**  
-   - Labels: `technical-debt`, `architecture`
-
-2. **Implement End-to-End Authentication with Cognito**  
-   - Labels: `refactor`, `security`
-
-3. **Introduce Baseline Testing and Verification Layer**  
-   - Labels: `technical-debt`, `quality`
-
-Each issue will include acceptance criteria and verification steps, ensuring that technical debt remediation is treated as first-class engineering work.
+### Remediation
+- Implement global error boundaries  
+- Add structured backend interaction logging  
+- Standardize loading and failure states  
 
 ---
 
-## Conclusion
+# Part 2: AI & System Risk Assessment (Rubric-Aligned Categories)
 
-This Risk & Technical Debt Inventory establishes a realistic understanding of the current system’s limitations and risks. By identifying architectural shortcuts, testing gaps, documentation weaknesses, and agentic workflow risks early, the team positions itself to transition from a prototype mindset to production-quality engineering.
+Because this project incorporates AI-assisted development, risk evaluation must extend beyond traditional software concerns.
 
-This document will guide refactoring, backlog prioritization, and security planning throughout Senior Capstone II, ensuring that future progress is built on a stable and intentional foundation.
+---
+
+## 1. Reliability Risk (Hallucination & Logical Integrity)
+
+**Risk:** AI-generated components may contain incorrect assumptions or schema mismatches.
+
+**System Example:** Frontend GraphQL queries implemented before backend schema finalized.
+
+**Impact:** Runtime failures and hidden logic defects.
+
+**Mitigation Controls**
+- Mandatory human review of AI-generated pull requests (TR-1)  
+- GraphQL schema validation tests  
+- CI enforcement  
+
+**RTM Linkage:** QR-2, TR-1  
+
+---
+
+## 2. Security Risk
+
+**Risk:** AI-generated authentication flows may omit enforcement boundaries.
+
+**Impact:** Unauthorized access to business data.
+
+**Mitigation Controls**
+- Cognito enforcement at identity boundary  
+- Resolver-level authorization checks  
+- Least-privilege IAM policies  
+
+**RTM Linkage:** FR-4, AR-3  
+
+---
+
+## 3. Privacy & Data Handling Risk
+
+**Risk:** AI-generated forms may mishandle sensitive business owner information.
+
+**Impact:** Exposure of contact data.
+
+**Mitigation Controls**
+- Secure DynamoDB storage patterns  
+- Restricted IAM roles  
+- Logging and audit monitoring (QR-4)  
+
+---
+
+## 4. Maintainability Risk
+
+**Risk:** AI-generated code lacks contextual documentation.
+
+**Impact:** High refactor cost and onboarding difficulty.
+
+**Mitigation Controls**
+- Architecture documentation (AR-1)  
+- ADR implementation (PR-3)  
+- Code standardization enforcement (QR-1)  
+
+---
+
+## 5. Process & Governance Risk
+
+**Risk:** AI-accelerated development may outpace structured backlog control.
+
+**Impact:** Accumulating unmanaged technical debt.
+
+**Mitigation Controls**
+- Weekly RTM updates  
+- Backlog grooming enforcement (PR-1)  
+- Formal Risk & Technical Debt Register (PR-4)  
+
+---
+
+# Part 3: Backlog Integration & Accountability
+
+All identified risks and technical debt items have been formally converted into structured backlog work and mapped to requirement IDs.
+
+Each remediation item includes:
+- Requirement ID linkage  
+- Feature / Work Item ID  
+- GitHub Issue classification  
+- Assigned Sprint target  
+- Defined acceptance criteria  
+- Explicit verification method  
+
+Technical debt remediation is treated as first-class engineering work.
+
+The Requirements Traceability Matrix (RTM) and corresponding GitHub Project Board have been formally updated to reflect these mappings, ensuring that each identified risk and technical debt item is linked to a requirement ID, backlog issue, sprint target, and verification method.
+
+---
+
+# Conclusion
+
+This Risk & Technical Debt Inventory establishes a governance framework for Capstone II.
+
+The team has:
+
+- Identified structural weaknesses introduced during AI-assisted prototyping  
+- Classified AI risks using formal risk domains  
+- Converted risks into actionable backlog items  
+- Linked remediation work to formal requirements  
+- Defined verification and accountability mechanisms  
+
+This document transitions the project from prototype velocity to controlled, production-oriented engineering practice.
