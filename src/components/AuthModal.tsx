@@ -123,7 +123,7 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Welcome to Bridge to Scale</DialogTitle>
+          <DialogTitle>Welcome to AWS CAMP</DialogTitle>
           <DialogDescription>
             Sign in to your account or create a new one
           </DialogDescription>
