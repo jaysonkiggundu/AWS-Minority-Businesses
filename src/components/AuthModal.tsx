@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
+import { resetPassword, confirmResetPassword } from 'aws-amplify/auth';
 
 interface AuthModalProps {
   open: boolean;
@@ -16,6 +17,7 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
   const { signIn, signUp, confirmSignUp } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [pendingUsername, setPendingUsername] = useState('');
 
   // Sign In Form
@@ -26,6 +28,10 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
 
   // Confirmation Form
   const [confirmationCode, setConfirmationCode] = useState('');
+
+  // Forgot Password Form
+  const [forgotPasswordData, setForgotPasswordData] = useState({ username: '', code: '', newPassword: '' });
+  const [forgotPasswordStep, setForgotPasswordStep] = useState<'request' | 'reset'>('request');
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,6 +86,40 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
     }
   };
 
+  const handleForgotPasswordRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await resetPassword({ username: forgotPasswordData.username });
+      toast.success('Reset code sent to your email');
+      setForgotPasswordStep('reset');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to send reset code');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await confirmResetPassword({
+        username: forgotPasswordData.username,
+        confirmationCode: forgotPasswordData.code,
+        newPassword: forgotPasswordData.newPassword,
+      });
+      toast.success('Password reset successful! You can now sign in.');
+      setShowForgotPassword(false);
+      setForgotPasswordData({ username: '', code: '', newPassword: '' });
+      setForgotPasswordStep('request');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to reset password');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (showConfirmation) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
@@ -114,6 +154,89 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
               Back to Sign Up
             </Button>
           </form>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (showForgotPassword) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reset Password</DialogTitle>
+            <DialogDescription>
+              {forgotPasswordStep === 'request' 
+                ? 'Enter your username to receive a reset code'
+                : 'Enter the code from your email and your new password'}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {forgotPasswordStep === 'request' ? (
+            <form onSubmit={handleForgotPasswordRequest} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="forgot-username">Username</Label>
+                <Input
+                  id="forgot-username"
+                  type="text"
+                  value={forgotPasswordData.username}
+                  onChange={(e) => setForgotPasswordData({ ...forgotPasswordData, username: e.target.value })}
+                  placeholder="Enter your username"
+                  required
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? 'Sending...' : 'Send Reset Code'}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full"
+                onClick={() => setShowForgotPassword(false)}
+              >
+                Back to Sign In
+              </Button>
+            </form>
+          ) : (
+            <form onSubmit={handlePasswordReset} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="reset-code">Reset Code</Label>
+                <Input
+                  id="reset-code"
+                  type="text"
+                  value={forgotPasswordData.code}
+                  onChange={(e) => setForgotPasswordData({ ...forgotPasswordData, code: e.target.value })}
+                  placeholder="Enter code from email"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="new-password">New Password</Label>
+                <Input
+                  id="new-password"
+                  type="password"
+                  value={forgotPasswordData.newPassword}
+                  onChange={(e) => setForgotPasswordData({ ...forgotPasswordData, newPassword: e.target.value })}
+                  placeholder="Enter new password"
+                  required
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? 'Resetting...' : 'Reset Password'}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full"
+                onClick={() => {
+                  setForgotPasswordStep('request');
+                  setShowForgotPassword(false);
+                }}
+              >
+                Back to Sign In
+              </Button>
+            </form>
+          )}
         </DialogContent>
       </Dialog>
     );
@@ -160,6 +283,14 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? 'Signing in...' : 'Sign In'}
+              </Button>
+              <Button
+                type="button"
+                variant="link"
+                className="w-full text-sm"
+                onClick={() => setShowForgotPassword(true)}
+              >
+                Forgot password?
               </Button>
             </form>
           </TabsContent>
