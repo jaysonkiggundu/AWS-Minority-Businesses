@@ -5,6 +5,7 @@ This folder contains technical documentation for the Bridge to Scale application
 ## Available Documentation
 
 - **[Authentication](./authentication.md)** - AWS Cognito authentication implementation, usage, and setup
+- **[Business Directory](./business-directory.md)** - Business listing, filtering, and GraphQL API integration
 
 ## Contributing to Documentation
 

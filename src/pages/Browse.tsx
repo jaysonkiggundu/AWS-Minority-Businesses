@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { BusinessCard } from "@/components/BusinessCard";
 import { BusinessFilters } from "@/components/BusinessFilters";
@@ -7,22 +8,37 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Business, BusinessFilters as Filters } from "@/types/business";
 import { mockBusinesses } from "@/data/mockBusinesses";
 import { filterBusinesses, sortBusinesses, getUniqueCategories, getUniqueDiversityTags } from "@/lib/businessUtils";
-import { ArrowUpDown, Grid, List } from "lucide-react";
+import { useBusinesses } from "@/hooks/useBusinesses";
+import { ArrowUpDown, Grid, List, AlertCircle, Plus } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const Browse = () => {
   const [filters, setFilters] = useState<Filters>({});
   const [sortBy, setSortBy] = useState<'name' | 'rating' | 'reviews' | 'newest'>('rating');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
+  // Fetch businesses from API
+  const { data: apiBusinesses, isLoading, error } = useBusinesses();
+
+  // Use API data if available, otherwise fall back to mock data
+  const businesses = useMemo(() => {
+    if (apiBusinesses && apiBusinesses.length > 0) {
+      return apiBusinesses;
+    }
+    return mockBusinesses;
+  }, [apiBusinesses]);
+
+  const isUsingMockData = !apiBusinesses || apiBusinesses.length === 0;
+
   // Get unique values for filter options
-  const availableCategories = useMemo(() => getUniqueCategories(mockBusinesses), []);
-  const availableDiversityTags = useMemo(() => getUniqueDiversityTags(mockBusinesses), []);
+  const availableCategories = useMemo(() => getUniqueCategories(businesses), [businesses]);
+  const availableDiversityTags = useMemo(() => getUniqueDiversityTags(businesses), [businesses]);
 
   // Filter and sort businesses
   const filteredBusinesses = useMemo(() => {
-    const filtered = filterBusinesses(mockBusinesses, filters);
+    const filtered = filterBusinesses(businesses, filters);
     return sortBusinesses(filtered, sortBy);
-  }, [filters, sortBy]);
+  }, [businesses, filters, sortBy]);
 
   const handleViewProfile = (business: Business) => {
     // TODO: Navigate to business profile page
@@ -34,13 +50,50 @@ const Browse = () => {
       <Navigation />
       
       <div className="container py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4">Discover Diverse Businesses</h1>
-          <p className="text-lg text-muted-foreground">
-            Find and support minority-owned businesses across all industries. 
-            Showing {filteredBusinesses.length} of {mockBusinesses.length} businesses.
-          </p>
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-4xl font-bold mb-4">Discover Diverse Businesses</h1>
+            <p className="text-lg text-muted-foreground">
+              Find and support minority-owned businesses across all industries. 
+              Showing {filteredBusinesses.length} of {businesses.length} businesses.
+            </p>
+          </div>
+          <Link to="/add-business">
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Business
+            </Button>
+          </Link>
         </div>
+
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Error loading businesses</AlertTitle>
+            <AlertDescription>
+              {error.message}. Showing sample data instead.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Mock Data Notice */}
+        {isUsingMockData && !isLoading && (
+          <Alert className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Viewing Sample Data</AlertTitle>
+            <AlertDescription>
+              No businesses found in the database. Showing sample data for demonstration.
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Filters */}
         <div className="mb-8">

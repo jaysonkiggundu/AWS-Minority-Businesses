@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import Browse from "./pages/Browse";
 import Founders from "./pages/Founders";
 import About from "./pages/About";
+import AddBusiness from "./pages/AddBusiness";
 import NotFound from "./pages/NotFound";
 
 // Configure Amplify
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/browse" element={<Browse />} />
             <Route path="/founders" element={<Founders />} />
             <Route path="/about" element={<About />} />
+            <Route path="/add-business" element={<AddBusiness />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
