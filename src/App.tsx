@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Amplify } from 'aws-amplify';
 import { awsConfig } from './config/aws-config';
 import { AuthProvider } from './contexts/AuthContext';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import Index from "./pages/Index";
 import Browse from "./pages/Browse";
 import Founders from "./pages/Founders";
@@ -30,7 +31,14 @@ const App = () => (
             <Route path="/browse" element={<Browse />} />
             <Route path="/founders" element={<Founders />} />
             <Route path="/about" element={<About />} />
-            <Route path="/add-business" element={<AddBusiness />} />
+            <Route 
+              path="/add-business" 
+              element={
+                <ProtectedRoute>
+                  <AddBusiness />
+                </ProtectedRoute>
+              } 
+            />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

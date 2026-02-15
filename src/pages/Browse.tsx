@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { BusinessCard } from "@/components/BusinessCard";
 import { BusinessFilters } from "@/components/BusinessFilters";
@@ -9,10 +9,14 @@ import { Business, BusinessFilters as Filters } from "@/types/business";
 import { mockBusinesses } from "@/data/mockBusinesses";
 import { filterBusinesses, sortBusinesses, getUniqueCategories, getUniqueDiversityTags } from "@/lib/businessUtils";
 import { useBusinesses } from "@/hooks/useBusinesses";
+import { useAuth } from "@/contexts/AuthContext";
 import { ArrowUpDown, Grid, List, AlertCircle, Plus } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { toast } from "sonner";
 
 const Browse = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [filters, setFilters] = useState<Filters>({});
   const [sortBy, setSortBy] = useState<'name' | 'rating' | 'reviews' | 'newest'>('rating');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -45,6 +49,14 @@ const Browse = () => {
     console.log('View profile for:', business.name);
   };
 
+  const handleAddBusiness = () => {
+    if (!isAuthenticated) {
+      toast.error('Please sign in to add a business');
+      return;
+    }
+    navigate('/add-business');
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -58,12 +70,10 @@ const Browse = () => {
               Showing {filteredBusinesses.length} of {businesses.length} businesses.
             </p>
           </div>
-          <Link to="/add-business">
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Business
-            </Button>
-          </Link>
+          <Button onClick={handleAddBusiness}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Business
+          </Button>
         </div>
 
         {/* Loading State */}
