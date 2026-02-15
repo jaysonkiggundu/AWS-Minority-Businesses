@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Search, TrendingUp, Users, Award, ArrowRight, Star } from "lucide-react";
 import { Link } from "react-router-dom";
+import { AWSLogo } from "@/components/AWSLogo";
 
 const Index = () => {
   return (
@@ -15,15 +16,18 @@ const Index = () => {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background" />
         <div className="container relative py-20 md:py-32">
           <div className="mx-auto max-w-4xl text-center animate-fade-in">
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
-              Bridging the Gap for{" "}
-              <span className="bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
-                Diverse-Owned Businesses
-              </span>
-            </h1>
+            <div className="mb-6 inline-block">
+              <div className="text-sm font-semibold text-primary mb-2">AWS CAMP</div>
+              <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
+                Empowering{" "}
+                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  Minority-Owned Businesses
+                </span>
+              </h1>
+            </div>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Connecting minority-owned businesses with customers, capital, and catalysts. 
-              Empowering Black, female, Latino, and LGBTQIA+ founders to scale from startup to $100M+.
+              Your Campus. Your Marketplace. Your Connection. Discover and support diverse-owned businesses 
+              through AWS's platform for Black, female, Latino, and LGBTQIA+ founders.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
               <Link to="/browse">
@@ -60,11 +64,11 @@ const Index = () => {
             {[
               { value: "$300B", label: "Supplier Diversity Gap" },
               { value: "<2%", label: "VC Funding for Diverse Founders" },
-              { value: "<100", label: "Black-Owned $100M+ Businesses" },
-              { value: "3 Cs", label: "Customers, Capital, Catalysts" },
+              { value: "AWS", label: "Powered Platform" },
+              { value: "CAMP", label: "Campus • Marketplace • Connection" },
             ].map((stat, index) => (
               <div key={index} className="text-center animate-slide-up" style={{ animationDelay: `${index * 0.1}s` }}>
-                <div className="text-4xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent mb-2">
+                <div className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
                   {stat.value}
                 </div>
                 <div className="text-sm text-muted-foreground">{stat.label}</div>
@@ -79,10 +83,10 @@ const Index = () => {
         <div className="container">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              How Bridge to Scale Works
+              How AWS CAMP Works
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              A comprehensive platform connecting diverse businesses with opportunities for growth
+              A comprehensive AWS-powered platform connecting diverse businesses with opportunities for growth
             </p>
           </div>
           
@@ -160,12 +164,18 @@ const Index = () => {
         <div className="container">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-primary-glow" />
-                <span className="font-bold">Bridge to Scale</span>
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="flex items-center space-x-2">
+                  <AWSLogo className="h-5 text-foreground" />
+                  <div className="h-5 w-px bg-border" />
+                  <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold text-sm">
+                    C
+                  </div>
+                </div>
+                <span className="font-bold">CAMP</span>
               </div>
               <p className="text-sm text-muted-foreground">
-                Empowering diverse-owned businesses to reach their full potential.
+                Empowering diverse-owned businesses to reach their full potential through AWS technology.
               </p>
             </div>
             <div>
@@ -194,7 +204,7 @@ const Index = () => {
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-border/40 text-center text-sm text-muted-foreground">
-            © 2025 Bridge to Scale. All rights reserved.
+            © 2025 AWS CAMP for Minority Businesses. All rights reserved.
           </div>
         </div>
       </footer>
