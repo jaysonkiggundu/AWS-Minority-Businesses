@@ -1,0 +1,225 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: AWS CAMP Minority Businesses – Backend Infrastructure
+
+Parameters:
+  Environment:
+    Type: String
+    AllowedValues:
+      - dev
+      - prod
+
+Resources:
+
+############################
+# Authentication (Cognito)
+############################
+
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub aws-camp-minority-${Environment}
+      AutoVerifiedAttributes:
+        - email
+
+  CognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: !Sub aws-camp-minority-client-${Environment}
+      UserPoolId: !Ref CognitoUserPool
+      GenerateSecret: false
+
+############################
+# Data Storage (DynamoDB)
+############################
+
+  BusinessTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub aws-camp-minority-businesses-${Environment}
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: businessId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: businessId
+          KeyType: HASH
+
+############################
+# API Layer (AppSync)
+############################
+
+  GraphQLApi:
+    Type: AWS::AppSync::GraphQLApi
+    Properties:
+      Name: !Sub aws-camp-minority-api-${Environment}
+      AuthenticationType: AMAZON_COGNITO_USER_POOLS
+      UserPoolConfig:
+        UserPoolId: !Ref CognitoUserPool
+        AwsRegion: !Ref AWS::Region
+        DefaultAction: ALLOW
+
+  GraphQLSchema:
+    Type: AWS::AppSync::GraphQLSchema
+    DependsOn:
+      - GraphQLApi
+    Properties:
+      ApiId: !GetAtt GraphQLApi.ApiId
+      Definition: |
+        type Business {
+          businessId: ID!
+          name: String!
+          category: String!
+          description: String
+        }
+
+        type Query {
+          listBusinesses: [Business]
+          getBusiness(businessId: ID!): Business
+        }
+
+        input CreateBusinessInput {
+          businessId: ID!
+          name: String!
+          category: String!
+          description: String
+        }
+
+        type Mutation {
+          createBusiness(input: CreateBusinessInput!): Business
+        }
+
+        schema {
+          query: Query
+          mutation: Mutation
+        }
+
+############################
+# IAM Role for AppSync
+############################
+
+  AppSyncDynamoDBRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub aws-camp-minority-appsync-role-${Environment}
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: appsync.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: DynamoDBAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:Scan
+                Resource: !GetAtt BusinessTable.Arn
+
+############################
+# AppSync Data Source
+############################
+
+  BusinessDataSource:
+    Type: AWS::AppSync::DataSource
+    DependsOn:
+      - GraphQLSchema
+    Properties:
+      ApiId: !GetAtt GraphQLApi.ApiId
+      Name: BusinessTableDataSource
+      Type: AMAZON_DYNAMODB
+      ServiceRoleArn: !GetAtt AppSyncDynamoDBRole.Arn
+      DynamoDBConfig:
+        TableName: !Ref BusinessTable
+        AwsRegion: !Ref AWS::Region
+
+############################
+# Resolvers
+############################
+
+  ListBusinessesResolver:
+    Type: AWS::AppSync::Resolver
+    DependsOn:
+      - BusinessDataSource
+    Properties:
+      ApiId: !GetAtt GraphQLApi.ApiId
+      TypeName: Query
+      FieldName: listBusinesses
+      DataSourceName: !GetAtt BusinessDataSource.Name
+      RequestMappingTemplate: |
+        {
+          "version": "2017-02-28",
+          "operation": "Scan"
+        }
+      ResponseMappingTemplate: |
+        $util.toJson($ctx.result.items)
+
+  GetBusinessResolver:
+    Type: AWS::AppSync::Resolver
+    DependsOn:
+      - BusinessDataSource
+    Properties:
+      ApiId: !GetAtt GraphQLApi.ApiId
+      TypeName: Query
+      FieldName: getBusiness
+      DataSourceName: !GetAtt BusinessDataSource.Name
+      RequestMappingTemplate: |
+        {
+          "version": "2017-02-28",
+          "operation": "GetItem",
+          "key": {
+            "businessId": $util.dynamodb.toDynamoDBJson($ctx.args.businessId)
+          }
+        }
+      ResponseMappingTemplate: |
+        $util.toJson($ctx.result)
+
+  CreateBusinessResolver:
+    Type: AWS::AppSync::Resolver
+    DependsOn:
+      - BusinessDataSource
+    Properties:
+      ApiId: !GetAtt GraphQLApi.ApiId
+      TypeName: Mutation
+      FieldName: createBusiness
+      DataSourceName: !GetAtt BusinessDataSource.Name
+      RequestMappingTemplate: |
+        {
+          "version": "2017-02-28",
+          "operation": "PutItem",
+          "key": {
+            "businessId": $util.dynamodb.toDynamoDBJson($ctx.args.input.businessId)
+          },
+          "attributeValues": {
+            "name": $util.dynamodb.toDynamoDBJson($ctx.args.input.name),
+            "category": $util.dynamodb.toDynamoDBJson($ctx.args.input.category),
+            "description": $util.dynamodb.toDynamoDBJson($ctx.args.input.description)
+          }
+        }
+      ResponseMappingTemplate: |
+        $util.toJson($ctx.args.input)
+
+############################
+# Outputs
+############################
+
+Outputs:
+  GraphQLApiUrl:
+    Description: AppSync GraphQL endpoint
+    Value: !GetAtt GraphQLApi.GraphQLUrl
+
+  CognitoUserPoolId:
+    Description: Cognito User Pool ID
+    Value: !Ref CognitoUserPool
+
+  CognitoUserPoolClientId:
+    Description: Cognito User Pool Client ID
+    Value: !Ref CognitoUserPoolClient
+
+  BusinessTableName:
+    Description: DynamoDB table name
+    Value: !Ref BusinessTable
