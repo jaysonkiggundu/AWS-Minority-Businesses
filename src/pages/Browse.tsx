@@ -1,11 +1,11 @@
 import { useState, useMemo } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { BusinessCard } from "@/components/BusinessCard";
 import { BusinessFilters } from "@/components/BusinessFilters";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Business, BusinessFilters as Filters } from "@/types/business";
+import { Business, BusinessCategory, BusinessFilters as Filters, DiversityTag } from "@/types/business";
 import { mockBusinesses } from "@/data/mockBusinesses";
 import { filterBusinesses, sortBusinesses, getUniqueCategories, getUniqueDiversityTags } from "@/lib/businessUtils";
 import { useBusinesses } from "@/hooks/useBusinesses";
@@ -14,35 +14,100 @@ import { ArrowUpDown, Grid, List, AlertCircle, Plus } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
 
+type SortOption = 'name' | 'rating' | 'reviews' | 'newest';
+
+const SORT_OPTIONS: ReadonlyArray<SortOption> = ['rating', 'reviews', 'name', 'newest'];
+
+const isSortOption = (value: string): value is SortOption => {
+  return (SORT_OPTIONS as ReadonlyArray<string>).includes(value);
+};
+
+const BUSINESS_CATEGORIES: ReadonlyArray<BusinessCategory> = [
+  "Technology",
+  "Healthcare",
+  "Finance",
+  "Retail",
+  "Manufacturing",
+  "Construction",
+  "Professional Services",
+  "Food & Beverage",
+  "Education",
+  "Transportation",
+  "Real Estate",
+  "Media & Entertainment",
+  "Non-profit",
+  "Other",
+];
+
+const DIVERSITY_TAGS: ReadonlyArray<DiversityTag> = [
+  "Black-owned",
+  "Female-founded",
+  "Latino-owned",
+  "LGBTQIA+-owned",
+  "Asian-owned",
+  "Native American-owned",
+  "Veteran-owned",
+  "Disability-owned",
+];
+
+const isBusinessCategory = (value: string): value is BusinessCategory => {
+  return (BUSINESS_CATEGORIES as ReadonlyArray<string>).includes(value);
+};
+
+const isDiversityTag = (value: string): value is DiversityTag => {
+  return (DIVERSITY_TAGS as ReadonlyArray<string>).includes(value);
+};
+
+const MOCK_FALLBACK_BUSINESSES: ReadonlyArray<Business> = mockBusinesses;
+
+/**
+ * Browse page for discovering minority-owned businesses.
+ *
+ * This UI is intentionally designed to work without a live backend:
+ * it prefers API data from `useBusinesses` when available, but safely
+ * falls back to `MOCK_FALLBACK_BUSINESSES` so we can exercise the
+ * directory experience during early development and demos.
+ */
 const Browse = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const [filters, setFilters] = useState<Filters>({});
-  const [sortBy, setSortBy] = useState<'name' | 'rating' | 'reviews' | 'newest'>('rating');
+  const [sortBy, setSortBy] = useState<SortOption>('rating');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   // Fetch businesses from API
   const { data: apiBusinesses, isLoading, error } = useBusinesses();
 
   // Use API data if available, otherwise fall back to mock data
-  const businesses = useMemo(() => {
-    if (apiBusinesses && apiBusinesses.length > 0) {
+  const businesses: Business[] = useMemo(() => {
+    if (Array.isArray(apiBusinesses) && apiBusinesses.length > 0) {
       return apiBusinesses;
     }
-    return mockBusinesses;
+    return [...MOCK_FALLBACK_BUSINESSES];
   }, [apiBusinesses]);
 
-  const isUsingMockData = !apiBusinesses || apiBusinesses.length === 0;
+  const isUsingMockData = !Array.isArray(apiBusinesses) || apiBusinesses.length === 0;
 
   // Get unique values for filter options
-  const availableCategories = useMemo(() => getUniqueCategories(businesses), [businesses]);
-  const availableDiversityTags = useMemo(() => getUniqueDiversityTags(businesses), [businesses]);
+  const availableCategories = useMemo(
+    () => getUniqueCategories(businesses ?? []).filter(isBusinessCategory),
+    [businesses]
+  );
+  const availableDiversityTags = useMemo(
+    () => getUniqueDiversityTags(businesses ?? []).filter(isDiversityTag),
+    [businesses]
+  );
 
   // Filter and sort businesses
-  const filteredBusinesses = useMemo(() => {
-    const filtered = filterBusinesses(businesses, filters);
+  const filteredBusinesses: Business[] = useMemo(() => {
+    const safeBusinesses = businesses ?? [];
+    const safeFilters = filters ?? {};
+    const filtered = filterBusinesses(safeBusinesses, safeFilters);
     return sortBusinesses(filtered, sortBy);
   }, [businesses, filters, sortBy]);
+
+  const safeBusinessCount = businesses?.length ?? 0;
+  const safeFilteredCount = filteredBusinesses?.length ?? 0;
 
   const handleViewProfile = (business: Business) => {
     // TODO: Navigate to business profile page
@@ -67,7 +132,7 @@ const Browse = () => {
             <h1 className="text-4xl font-bold mb-4">Discover Diverse Businesses</h1>
             <p className="text-lg text-muted-foreground">
               Find and support minority-owned businesses across all industries. 
-              Showing {filteredBusinesses.length} of {businesses.length} businesses.
+              Showing {safeFilteredCount} of {safeBusinessCount} businesses.
             </p>
           </div>
           <Button onClick={handleAddBusiness}>
@@ -79,7 +144,7 @@ const Browse = () => {
         {/* Loading State */}
         {isLoading && (
           <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
           </div>
         )}
 
@@ -89,7 +154,7 @@ const Browse = () => {
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Error loading businesses</AlertTitle>
             <AlertDescription>
-              {error.message}. Showing sample data instead.
+              {(error instanceof Error ? error.message : 'Unknown error')}. Showing sample data instead.
             </AlertDescription>
           </Alert>
         )}
@@ -120,7 +185,14 @@ const Browse = () => {
           <div className="flex items-center gap-2">
             <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm text-muted-foreground">Sort by:</span>
-            <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+            <Select
+              value={sortBy}
+              onValueChange={(value) => {
+                if (isSortOption(value)) {
+                  setSortBy(value);
+                }
+              }}
+            >
               <SelectTrigger className="w-40">
                 <SelectValue />
               </SelectTrigger>
@@ -152,7 +224,7 @@ const Browse = () => {
         </div>
 
         {/* Results */}
-        {filteredBusinesses.length === 0 ? (
+        {safeFilteredCount === 0 ? (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">🔍</div>
             <h3 className="text-xl font-semibold mb-2">No businesses found</h3>
@@ -169,7 +241,7 @@ const Browse = () => {
               ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
               : "space-y-4"
           }>
-            {filteredBusinesses.map((business) => (
+            {(filteredBusinesses ?? []).map((business) => (
               <BusinessCard
                 key={business.id}
                 business={business}
@@ -180,10 +252,10 @@ const Browse = () => {
         )}
 
         {/* Load More (for future pagination) */}
-        {filteredBusinesses.length > 0 && (
+        {safeFilteredCount > 0 && (
           <div className="text-center mt-12">
             <p className="text-sm text-muted-foreground mb-4">
-              Showing {filteredBusinesses.length} businesses
+              Showing {safeFilteredCount} businesses
             </p>
             {/* Future: Add pagination or load more functionality */}
           </div>

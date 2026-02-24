@@ -10,6 +10,14 @@ interface BusinessCardProps {
   onViewProfile?: (business: Business) => void;
 }
 
+/**
+ * Presentational card for a single `Business` on the Browse page.
+ *
+ * This component is designed to render fields from the shared `Business`
+ * interface and works with both live API data and the
+ * `MOCK_FALLBACK_BUSINESSES` mock dataset used while there is no
+ * production backend.
+ */
 export function BusinessCard({ business, onViewProfile }: BusinessCardProps) {
   const handleViewProfile = () => {
     if (onViewProfile) {
