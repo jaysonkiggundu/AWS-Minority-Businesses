@@ -1,12 +1,14 @@
 # Documentation
 
-This folder contains technical documentation for the Bridge to Scale application.
+This folder contains technical documentation for the AWS CAMP for Minority Businesses application.
 
 ## Available Documentation
 
 ### Architecture & Design
 - **[System Architecture](./architecture.md)** - Complete system architecture, data flow, and infrastructure design
-- **[Separation of Concerns](./separation-of-concerns.md)** - Frontend and backend responsibilities, boundaries, and best practices
+- **[Separation of Concerns](./separation.md)** - Frontend and backend responsibilities, boundaries, and best practices
+- **[API Contracts](./api-contracts.md)** - GraphQL schema, request/response formats, and API versioning
+- **[Incremental Feature Growth](./feature-growth-guide.md)** - Strategy and patterns for adding new features safely
 
 ### Features
 - **[Authentication](./authentication.md)** - AWS Cognito authentication implementation, usage, and setup
