@@ -4,16 +4,13 @@ This folder contains technical documentation for the Bridge to Scale application
 
 ## Available Documentation
 
+### Architecture & Design
+- **[System Architecture](./architecture.md)** - Complete system architecture, data flow, and infrastructure design
+- **[Separation of Concerns](./separation-of-concerns.md)** - Frontend and backend responsibilities, boundaries, and best practices
+
+### Features
 - **[Authentication](./authentication.md)** - AWS Cognito authentication implementation, usage, and setup
 - **[Business Directory](./business-directory.md)** - Business listing, filtering, and GraphQL API integration
-
-## Contributing to Documentation
-
-When adding new features, please:
-1. Create a new markdown file in this folder
-2. Document the feature's architecture, usage, and setup
-3. Update this README with a link to the new documentation
-4. Include code examples where applicable
 
 ## Documentation Standards
 
@@ -22,3 +19,13 @@ When adding new features, please:
 - Document environment variables and configuration
 - Provide troubleshooting tips
 - Keep documentation up-to-date with code changes
+- Include diagrams where helpful
+
+## Contributing to Documentation
+
+When adding new features, please:
+1. Create a new markdown file in this folder
+2. Document the feature's architecture, usage, and setup
+3. Update this README with a link to the new documentation
+4. Include code examples where applicable
+5. Add diagrams for complex flows

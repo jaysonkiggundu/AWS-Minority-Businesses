@@ -1,4 +1,4 @@
-# AWS CAMP for Minority Businesses
+ # AWS CAMP for Minority Businesses
 
 A modern React application for discovering and supporting minority-owned businesses, built with Vite, TypeScript, AWS Cognito, AppSync, and DynamoDB.
 
