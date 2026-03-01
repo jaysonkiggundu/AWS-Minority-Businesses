@@ -9,6 +9,7 @@ This folder contains technical documentation for the AWS CAMP for Minority Busin
 - **[Separation of Concerns](./separation.md)** - Frontend and backend responsibilities, boundaries, and best practices
 - **[API Contracts](./api-contracts.md)** - GraphQL schema, request/response formats, and API versioning
 - **[Incremental Feature Growth](./feature-growth-guide.md)** - Strategy and patterns for adding new features safely
+- **[Code Quality Standards](./code-quality.md)** - Code style, formatting, testing, and best practices (QR-1)
 
 ### Features
 - **[Authentication](./authentication.md)** - AWS Cognito authentication implementation, usage, and setup
