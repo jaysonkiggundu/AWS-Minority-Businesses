@@ -1,61 +1,40 @@
-import { useState, useMemo } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import { BusinessCard } from "@/components/BusinessCard";
 import { BusinessFilters } from "@/components/BusinessFilters";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Business, BusinessFilters as Filters } from "@/types/business";
-import { mockBusinesses } from "@/data/mockBusinesses";
-import { filterBusinesses, sortBusinesses, getUniqueCategories, getUniqueDiversityTags } from "@/lib/businessUtils";
-import { useBusinesses } from "@/hooks/useBusinesses";
-import { useAuth } from "@/contexts/AuthContext";
+import { useBusinessData } from "@/hooks/useBusinessData";
+import { useBusinessFiltering } from "@/hooks/useBusinessFiltering";
+import { useBusinessActions } from "@/hooks/useBusinessActions";
 import { ArrowUpDown, Grid, List, AlertCircle, Plus } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { toast } from "sonner";
 
 const Browse = () => {
-  const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
-  const [filters, setFilters] = useState<Filters>({});
-  const [sortBy, setSortBy] = useState<'name' | 'rating' | 'reviews' | 'newest'>('rating');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
-  // Fetch businesses from API
-  const { data: apiBusinesses, isLoading, error } = useBusinesses();
+  // Custom hooks for separation of concerns
+  const {
+    businesses,
+    isLoading,
+    error,
+    isUsingMockData,
+    availableCategories,
+    availableDiversityTags,
+  } = useBusinessData();
 
-  // Use API data if available, otherwise fall back to mock data
-  const businesses = useMemo(() => {
-    if (apiBusinesses && apiBusinesses.length > 0) {
-      return apiBusinesses;
-    }
-    return mockBusinesses;
-  }, [apiBusinesses]);
+  const {
+    filters,
+    setFilters,
+    sortBy,
+    setSortBy,
+    filteredBusinesses,
+    clearFilters,
+    totalCount,
+    filteredCount,
+  } = useBusinessFiltering(businesses);
 
-  const isUsingMockData = !apiBusinesses || apiBusinesses.length === 0;
-
-  // Get unique values for filter options
-  const availableCategories = useMemo(() => getUniqueCategories(businesses), [businesses]);
-  const availableDiversityTags = useMemo(() => getUniqueDiversityTags(businesses), [businesses]);
-
-  // Filter and sort businesses
-  const filteredBusinesses = useMemo(() => {
-    const filtered = filterBusinesses(businesses, filters);
-    return sortBusinesses(filtered, sortBy);
-  }, [businesses, filters, sortBy]);
-
-  const handleViewProfile = (business: Business) => {
-    // TODO: Navigate to business profile page
-    console.log('View profile for:', business.name);
-  };
-
-  const handleAddBusiness = () => {
-    if (!isAuthenticated) {
-      toast.error('Please sign in to add a business');
-      return;
-    }
-    navigate('/add-business');
-  };
+  const { handleViewProfile, handleAddBusiness } = useBusinessActions();
 
   return (
     <div className="min-h-screen bg-background">
@@ -67,7 +46,7 @@ const Browse = () => {
             <h1 className="text-4xl font-bold mb-4">Discover Diverse Businesses</h1>
             <p className="text-lg text-muted-foreground">
               Find and support minority-owned businesses across all industries. 
-              Showing {filteredBusinesses.length} of {businesses.length} businesses.
+              Showing {filteredCount} of {totalCount} businesses.
             </p>
           </div>
           <Button onClick={handleAddBusiness}>
@@ -159,7 +138,7 @@ const Browse = () => {
             <p className="text-muted-foreground mb-4">
               Try adjusting your filters or search terms to find more businesses.
             </p>
-            <Button onClick={() => setFilters({})}>
+            <Button onClick={clearFilters}>
               Clear All Filters
             </Button>
           </div>
