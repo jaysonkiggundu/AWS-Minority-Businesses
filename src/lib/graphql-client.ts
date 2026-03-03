@@ -1,6 +1,9 @@
 import { fetchAuthSession } from 'aws-amplify/auth';
 
-const GRAPHQL_API_URL = import.meta.env.VITE_GRAPHQL_API_URL;
+const GRAPHQL_API_URL =
+  typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_GRAPHQL_API_URL
+    ? import.meta.env.VITE_GRAPHQL_API_URL
+    : process.env.VITE_GRAPHQL_API_URL;
 
 interface GraphQLRequest {
   query: string;
@@ -12,16 +15,27 @@ interface GraphQLResponse<T> {
   errors?: Array<{ message: string }>;
 }
 
+class GraphQLRequestError extends Error {
+  constructor(message: string, public details?: any) {
+    super(message);
+    this.name = 'GraphQLRequestError';
+  }
+}
+
 export async function graphqlRequest<T>(
   request: GraphQLRequest
 ): Promise<T> {
   try {
+    if (!request || typeof request !== 'object' || typeof request.query !== 'string') {
+      throw new GraphQLRequestError('Invalid GraphQL request object');
+    }
+
     // Get auth token
     const session = await fetchAuthSession();
     const token = session.tokens?.idToken?.toString();
 
     if (!token) {
-      throw new Error('No authentication token available');
+      throw new GraphQLRequestError('No authentication token available');
     }
 
     const response = await fetch(GRAPHQL_API_URL, {
@@ -34,23 +48,33 @@ export async function graphqlRequest<T>(
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new GraphQLRequestError(`HTTP error! status: ${response.status}`, { status: response.status, statusText: response.statusText });
     }
 
-    const result: GraphQLResponse<T> = await response.json();
+    let result: GraphQLResponse<T>;
+    try {
+      result = await response.json();
+    } catch (jsonError) {
+      throw new GraphQLRequestError('Failed to parse GraphQL response as JSON', jsonError);
+    }
 
-    if (result.errors) {
-      throw new Error(result.errors[0].message);
+    if (result.errors && result.errors.length > 0) {
+      throw new GraphQLRequestError(result.errors[0].message, result.errors);
     }
 
     if (!result.data) {
-      throw new Error('No data returned from GraphQL API');
+      throw new GraphQLRequestError('No data returned from GraphQL API', result);
     }
 
     return result.data;
   } catch (error) {
-    console.error('GraphQL request error:', error);
-    throw error;
+    if (!(error instanceof GraphQLRequestError)) {
+      console.error('Unexpected GraphQL request error:', error);
+      throw new GraphQLRequestError('Unexpected error during GraphQL request', error);
+    } else {
+      console.error('GraphQL request error:', error);
+      throw error;
+    }
   }
 }
 
