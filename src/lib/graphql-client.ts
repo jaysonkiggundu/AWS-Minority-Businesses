@@ -1,6 +1,9 @@
 import { fetchAuthSession } from 'aws-amplify/auth';
 
-const GRAPHQL_API_URL = import.meta.env.VITE_GRAPHQL_API_URL;
+const GRAPHQL_API_URL =
+  typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_GRAPHQL_API_URL
+    ? import.meta.env.VITE_GRAPHQL_API_URL
+    : process.env.VITE_GRAPHQL_API_URL;
 
 interface GraphQLRequest {
   query: string;
