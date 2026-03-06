@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { getCurrentUser, signIn, signOut, signUp, confirmSignUp, fetchAuthSession } from 'aws-amplify/auth';
+import { logger } from '@/lib/logger';
 
 interface User {
   username: string;
@@ -29,6 +30,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const checkUser = async () => {
     try {
+      logger.debug('Checking user authentication status');
       const currentUser = await getCurrentUser();
       const session = await fetchAuthSession();
       
@@ -37,7 +39,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         userId: currentUser.userId,
         email: session.tokens?.idToken?.payload.email as string,
       });
+      
+      logger.info('User authenticated', { username: currentUser.username });
     } catch (error) {
+      logger.debug('No authenticated user');
       setUser(null);
     } finally {
       setLoading(false);
@@ -45,29 +50,57 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const handleSignIn = async (username: string, password: string) => {
-    await signIn({ username, password });
-    await checkUser();
+    try {
+      logger.logUserAction('Sign In Attempt', { username });
+      await signIn({ username, password });
+      await checkUser();
+      logger.logUserAction('Sign In Success', { username });
+    } catch (error) {
+      logger.error('Sign in failed', error as Error, { username });
+      throw error;
+    }
   };
 
   const handleSignUp = async (username: string, email: string, password: string) => {
-    await signUp({
-      username,
-      password,
-      options: {
-        userAttributes: {
-          email,
+    try {
+      logger.logUserAction('Sign Up Attempt', { username, email });
+      await signUp({
+        username,
+        password,
+        options: {
+          userAttributes: {
+            email,
+          },
         },
-      },
-    });
+      });
+      logger.logUserAction('Sign Up Success', { username, email });
+    } catch (error) {
+      logger.error('Sign up failed', error as Error, { username, email });
+      throw error;
+    }
   };
 
   const handleConfirmSignUp = async (username: string, code: string) => {
-    await confirmSignUp({ username, confirmationCode: code });
+    try {
+      logger.logUserAction('Confirm Sign Up Attempt', { username });
+      await confirmSignUp({ username, confirmationCode: code });
+      logger.logUserAction('Confirm Sign Up Success', { username });
+    } catch (error) {
+      logger.error('Confirm sign up failed', error as Error, { username });
+      throw error;
+    }
   };
 
   const handleSignOut = async () => {
-    await signOut();
-    setUser(null);
+    try {
+      const username = user?.username;
+      logger.logUserAction('Sign Out', { username });
+      await signOut();
+      setUser(null);
+    } catch (error) {
+      logger.error('Sign out failed', error as Error);
+      throw error;
+    }
   };
 
   return (

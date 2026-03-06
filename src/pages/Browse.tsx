@@ -1,7 +1,7 @@
-import { useState, useMemo } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
-import { BusinessCard } from "@/components/BusinessCard";
+import { BusinessList } from "@/components/BusinessList";
 import { BusinessFilters } from "@/components/BusinessFilters";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -13,6 +13,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ArrowUpDown, Grid, List, AlertCircle, Plus } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
+import { logger } from "@/lib/logger";
 
 const Browse = () => {
   const navigate = useNavigate();
@@ -24,11 +25,18 @@ const Browse = () => {
   // Fetch businesses from API
   const { data: apiBusinesses, isLoading, error } = useBusinesses();
 
+  // Log page view
+  useEffect(() => {
+    logger.logUserAction('Browse Page Viewed');
+  }, []);
+
   // Use API data if available, otherwise fall back to mock data
   const businesses = useMemo(() => {
     if (apiBusinesses && apiBusinesses.length > 0) {
+      logger.info('Using API data', { count: apiBusinesses.length });
       return apiBusinesses;
     }
+    logger.info('Using mock data', { count: mockBusinesses.length });
     return mockBusinesses;
   }, [apiBusinesses]);
 
@@ -40,21 +48,50 @@ const Browse = () => {
 
   // Filter and sort businesses
   const filteredBusinesses = useMemo(() => {
+    const startTime = performance.now();
     const filtered = filterBusinesses(businesses, filters);
-    return sortBusinesses(filtered, sortBy);
+    const sorted = sortBusinesses(filtered, sortBy);
+    const duration = performance.now() - startTime;
+    
+    logger.logPerformance('Filter and Sort', duration);
+    logger.debug('Filtered businesses', { 
+      total: businesses.length, 
+      filtered: sorted.length,
+      filters,
+      sortBy 
+    });
+    
+    return sorted;
   }, [businesses, filters, sortBy]);
 
   const handleViewProfile = (business: Business) => {
+    logger.logUserAction('View Business Profile', { businessId: business.id, businessName: business.name });
     // TODO: Navigate to business profile page
     console.log('View profile for:', business.name);
   };
 
   const handleAddBusiness = () => {
+    logger.logUserAction('Add Business Button Clicked', { isAuthenticated });
     if (!isAuthenticated) {
       toast.error('Please sign in to add a business');
       return;
     }
     navigate('/add-business');
+  };
+
+  const handleClearFilters = () => {
+    logger.logUserAction('Clear Filters');
+    setFilters({});
+  };
+
+  const handleSortChange = (value: string) => {
+    logger.logUserAction('Sort Changed', { sortBy: value });
+    setSortBy(value as any);
+  };
+
+  const handleViewModeChange = (mode: 'grid' | 'list') => {
+    logger.logUserAction('View Mode Changed', { viewMode: mode });
+    setViewMode(mode);
   };
 
   return (
@@ -120,7 +157,7 @@ const Browse = () => {
           <div className="flex items-center gap-2">
             <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm text-muted-foreground">Sort by:</span>
-            <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+            <Select value={sortBy} onValueChange={handleSortChange}>
               <SelectTrigger className="w-40">
                 <SelectValue />
               </SelectTrigger>
@@ -137,14 +174,14 @@ const Browse = () => {
             <Button
               variant={viewMode === 'grid' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setViewMode('grid')}
+              onClick={() => handleViewModeChange('grid')}
             >
               <Grid className="h-4 w-4" />
             </Button>
             <Button
               variant={viewMode === 'list' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setViewMode('list')}
+              onClick={() => handleViewModeChange('list')}
             >
               <List className="h-4 w-4" />
             </Button>
@@ -152,32 +189,12 @@ const Browse = () => {
         </div>
 
         {/* Results */}
-        {filteredBusinesses.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">🔍</div>
-            <h3 className="text-xl font-semibold mb-2">No businesses found</h3>
-            <p className="text-muted-foreground mb-4">
-              Try adjusting your filters or search terms to find more businesses.
-            </p>
-            <Button onClick={() => setFilters({})}>
-              Clear All Filters
-            </Button>
-          </div>
-        ) : (
-          <div className={
-            viewMode === 'grid' 
-              ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-              : "space-y-4"
-          }>
-            {filteredBusinesses.map((business) => (
-              <BusinessCard
-                key={business.id}
-                business={business}
-                onViewProfile={handleViewProfile}
-              />
-            ))}
-          </div>
-        )}
+        <BusinessList
+          businesses={filteredBusinesses}
+          viewMode={viewMode}
+          onViewProfile={handleViewProfile}
+          onClearFilters={handleClearFilters}
+        />
 
         {/* Load More (for future pagination) */}
         {filteredBusinesses.length > 0 && (
