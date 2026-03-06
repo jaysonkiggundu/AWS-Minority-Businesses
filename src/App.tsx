@@ -7,6 +7,7 @@ import { Amplify } from 'aws-amplify';
 import { awsConfig } from './config/aws-config';
 import { AuthProvider } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import Index from "./pages/Index";
 import Browse from "./pages/Browse";
 import Founders from "./pages/Founders";
@@ -17,35 +18,57 @@ import NotFound from "./pages/NotFound";
 // Configure Amplify
 Amplify.configure(awsConfig);
 
-const queryClient = new QueryClient();
+// Configure React Query with error handling
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 3,
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      onError: (error) => {
+        console.error('Query error:', error);
+      },
+    },
+    mutations: {
+      retry: 1,
+      onError: (error) => {
+        console.error('Mutation error:', error);
+      },
+    },
+  },
+});
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/browse" element={<Browse />} />
-            <Route path="/founders" element={<Founders />} />
-            <Route path="/about" element={<About />} />
-            <Route 
-              path="/add-business" 
-              element={
-                <ProtectedRoute>
-                  <AddBusiness />
-                </ProtectedRoute>
-              } 
-            />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <ErrorBoundary>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/browse" element={<Browse />} />
+                <Route path="/founders" element={<Founders />} />
+                <Route path="/about" element={<About />} />
+                <Route 
+                  path="/add-business" 
+                  element={
+                    <ProtectedRoute>
+                      <AddBusiness />
+                    </ProtectedRoute>
+                  } 
+                />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </ErrorBoundary>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;
