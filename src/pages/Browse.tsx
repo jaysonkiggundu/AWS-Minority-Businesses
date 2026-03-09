@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { BusinessList } from "@/components/BusinessList";
 import { BusinessFilters } from "@/components/BusinessFilters";
@@ -17,6 +17,7 @@ import { logger } from "@/lib/logger";
 
 const Browse = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { isAuthenticated } = useAuth();
   const [filters, setFilters] = useState<Filters>({});
   const [sortBy, setSortBy] = useState<'name' | 'rating' | 'reviews' | 'newest'>('rating');
@@ -25,10 +26,18 @@ const Browse = () => {
   // Fetch businesses from API
   const { data: apiBusinesses, isLoading, error } = useBusinesses();
 
-  // Log page view
+  // Log page view and check for search query from URL
   useEffect(() => {
-    logger.logUserAction('Browse Page Viewed');
-  }, []);
+    const searchQuery = searchParams.get('search');
+    
+    if (searchQuery) {
+      logger.logUserAction('Browse Page Viewed with Search', { query: searchQuery });
+      // Set the search filter from URL parameter
+      setFilters({ search: searchQuery });
+    } else {
+      logger.logUserAction('Browse Page Viewed');
+    }
+  }, [searchParams]);
 
   // Use API data if available, otherwise fall back to mock data
   const businesses = useMemo(() => {
