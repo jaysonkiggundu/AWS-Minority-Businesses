@@ -10,6 +10,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import Index from "./pages/Index";
 import Browse from "./pages/Browse";
+import BusinessProfile from "./pages/BusinessProfile";
 import Founders from "./pages/Founders";
 import About from "./pages/About";
 import AddBusiness from "./pages/AddBusiness";
@@ -50,6 +51,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/browse" element={<Browse />} />
+                <Route path="/business/:businessId" element={<BusinessProfile />} />
                 <Route path="/founders" element={<Founders />} />
                 <Route path="/about" element={<About />} />
                 <Route 

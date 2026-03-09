@@ -75,8 +75,7 @@ const Browse = () => {
 
   const handleViewProfile = (business: Business) => {
     logger.logUserAction('View Business Profile', { businessId: business.id, businessName: business.name });
-    // TODO: Navigate to business profile page
-    console.log('View profile for:', business.name);
+    navigate(`/business/${business.id}`);
   };
 
   const handleAddBusiness = () => {
