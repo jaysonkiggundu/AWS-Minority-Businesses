@@ -14,6 +14,9 @@ import BusinessProfile from "./pages/BusinessProfile";
 import Founders from "./pages/Founders";
 import About from "./pages/About";
 import AddBusiness from "./pages/AddBusiness";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 
 // Configure Amplify
@@ -54,6 +57,9 @@ const App = () => (
                 <Route path="/business/:businessId" element={<BusinessProfile />} />
                 <Route path="/founders" element={<Founders />} />
                 <Route path="/about" element={<About />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/contact" element={<Contact />} />
                 <Route 
                   path="/add-business" 
                   element={
