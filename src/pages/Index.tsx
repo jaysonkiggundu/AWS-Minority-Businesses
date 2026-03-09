@@ -204,7 +204,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="border-t border-border/40 py-12">
         <div className="container">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
               <div className="flex items-center space-x-3 mb-4">
                 <div className="flex items-center space-x-2">
@@ -231,17 +231,8 @@ const Index = () => {
             <div>
               <h4 className="font-semibold mb-4">Resources</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground">AWS Accelerators</a></li>
-                <li><a href="#" className="hover:text-foreground">Success Stories</a></li>
-                <li><a href="#" className="hover:text-foreground">Help Center</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/privacy" className="hover:text-foreground">Privacy Policy</Link></li>
-                <li><Link to="/terms" className="hover:text-foreground">Terms of Service</Link></li>
-                <li><Link to="/contact" className="hover:text-foreground">Contact</Link></li>
+                <li><a href="https://aws.amazon.com/startups/" target="_blank" rel="noopener noreferrer" className="hover:text-foreground">AWS Accelerators</a></li>
+                <li><Link to="/browse" className="hover:text-foreground">Success Stories</Link></li>
               </ul>
             </div>
           </div>
