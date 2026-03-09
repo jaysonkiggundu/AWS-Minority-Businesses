@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
@@ -16,14 +16,19 @@ import {
   Calendar,
   Star,
   CheckCircle,
-  ExternalLink
+  ExternalLink,
+  Heart,
+  Share2,
+  MessageCircle
 } from 'lucide-react';
 import { mockBusinesses } from '@/data/mockBusinesses';
 import { logger } from '@/lib/logger';
+import { toast } from 'sonner';
 
 const BusinessProfile = () => {
   const { businessId } = useParams<{ businessId: string }>();
   const navigate = useNavigate();
+  const [isSaved, setIsSaved] = useState(false);
 
   // Find business by ID (in production, this would be an API call)
   const business = mockBusinesses.find(b => b.id === businessId);
@@ -36,6 +41,71 @@ const BusinessProfile = () => {
       });
     }
   }, [businessId, business]);
+
+  const handleContactBusiness = () => {
+    logger.logUserAction('Contact Business Clicked', { 
+      businessId,
+      businessName: business?.name 
+    });
+    toast.success('Contact form opened! (Feature coming soon)');
+  };
+
+  const handleSaveToFavorites = () => {
+    setIsSaved(!isSaved);
+    logger.logUserAction(isSaved ? 'Removed from Favorites' : 'Saved to Favorites', { 
+      businessId,
+      businessName: business?.name 
+    });
+    toast.success(isSaved ? 'Removed from favorites' : 'Saved to favorites!');
+  };
+
+  const handleShareProfile = async () => {
+    logger.logUserAction('Share Profile Clicked', { 
+      businessId,
+      businessName: business?.name 
+    });
+
+    // Try to use Web Share API if available
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: business?.name,
+          text: `Check out ${business?.name} on AWS CAMP`,
+          url: window.location.href,
+        });
+        toast.success('Shared successfully!');
+      } catch (error) {
+        // User cancelled or error occurred
+        if ((error as Error).name !== 'AbortError') {
+          toast.error('Failed to share');
+        }
+      }
+    } else {
+      // Fallback: Copy to clipboard
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success('Link copied to clipboard!');
+      } catch (error) {
+        toast.error('Failed to copy link');
+      }
+    }
+  };
+
+  const handlePhoneClick = () => {
+    logger.logUserAction('Phone Number Clicked', { 
+      businessId,
+      phone: business?.contact.phone 
+    });
+    toast.info('Opening phone dialer...');
+  };
+
+  const handleEmailClick = () => {
+    logger.logUserAction('Email Clicked', { 
+      businessId,
+      email: business?.contact.email 
+    });
+    toast.info('Opening email client...');
+  };
 
   if (!business) {
     return (
@@ -206,6 +276,7 @@ const BusinessProfile = () => {
                       <div className="font-medium">Phone</div>
                       <a 
                         href={`tel:${business.contact.phone}`}
+                        onClick={handlePhoneClick}
                         className="text-sm text-primary hover:underline"
                       >
                         {business.contact.phone}
@@ -221,6 +292,7 @@ const BusinessProfile = () => {
                       <div className="font-medium">Email</div>
                       <a 
                         href={`mailto:${business.contact.email}`}
+                        onClick={handleEmailClick}
                         className="text-sm text-primary hover:underline"
                       >
                         {business.contact.email}
@@ -259,13 +331,30 @@ const BusinessProfile = () => {
                 <CardTitle>Get in Touch</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button className="w-full" size="lg">
+                <Button 
+                  className="w-full" 
+                  size="lg"
+                  onClick={handleContactBusiness}
+                >
+                  <MessageCircle className="mr-2 h-4 w-4" />
                   Contact Business
                 </Button>
-                <Button variant="outline" className="w-full" size="lg">
-                  Save to Favorites
+                <Button 
+                  variant={isSaved ? "default" : "outline"}
+                  className="w-full" 
+                  size="lg"
+                  onClick={handleSaveToFavorites}
+                >
+                  <Heart className={`mr-2 h-4 w-4 ${isSaved ? 'fill-current' : ''}`} />
+                  {isSaved ? 'Saved to Favorites' : 'Save to Favorites'}
                 </Button>
-                <Button variant="outline" className="w-full" size="lg">
+                <Button 
+                  variant="outline" 
+                  className="w-full" 
+                  size="lg"
+                  onClick={handleShareProfile}
+                >
+                  <Share2 className="mr-2 h-4 w-4" />
                   Share Profile
                 </Button>
               </CardContent>

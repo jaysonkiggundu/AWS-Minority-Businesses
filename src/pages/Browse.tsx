@@ -90,6 +90,7 @@ const Browse = () => {
   const handleClearFilters = () => {
     logger.logUserAction('Clear Filters');
     setFilters({});
+    toast.success('Filters cleared');
   };
 
   const handleSortChange = (value: string) => {

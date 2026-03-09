@@ -8,6 +8,7 @@ import { Search, TrendingUp, Users, Award, ArrowRight, Star } from "lucide-react
 import { Link } from "react-router-dom";
 import { AWSLogo } from "@/components/AWSLogo";
 import { logger } from "@/lib/logger";
+import { toast } from "sonner";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -18,8 +19,11 @@ const Index = () => {
     
     if (searchQuery.trim()) {
       logger.logUserAction('Homepage Search', { query: searchQuery });
+      toast.success(`Searching for "${searchQuery}"...`);
       // Navigate to Browse page with search query as URL parameter
       navigate(`/browse?search=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      toast.error('Please enter a search term');
     }
   };
 
