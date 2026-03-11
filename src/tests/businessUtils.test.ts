@@ -6,7 +6,7 @@ import {
   formatLocation,
   formatEmployeeCount,
   formatRevenue,
-} from './businessUtils';
+} from '../lib/businessUtils';
 import { Business, BusinessFilters } from "@/types/business";
 
 const mockBusinesses: Business[] = [
