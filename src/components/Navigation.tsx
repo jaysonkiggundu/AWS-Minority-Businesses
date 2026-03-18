@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, User, LogOut } from "lucide-react";
 import { useState } from "react";
@@ -16,12 +16,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const Navigation = () => {
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const { user, isAuthenticated, signOut } = useAuth();
 
   const handleSignOut = async () => {
     await signOut();
+  };
+
+  const handleBrowse = () => {
+    // Force a full page reload to reset all state
+    window.location.href = '/browse';
   };
 
   return (
@@ -47,9 +53,12 @@ const Navigation = () => {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-6">
-          <Link to="/browse" className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors">
+          <button 
+            onClick={handleBrowse}
+            className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors"
+          >
             Browse Businesses
-          </Link>
+          </button>
           <Link to="/founders" className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors">
             For Founders
           </Link>
@@ -103,13 +112,15 @@ const Navigation = () => {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-border/40 bg-background/95 backdrop-blur">
           <div className="container py-4 space-y-3">
-            <Link
-              to="/browse"
-              className="block py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
+            <button
+              onClick={() => {
+                handleBrowse();
+                setMobileMenuOpen(false);
+              }}
+              className="block w-full text-left py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors"
             >
               Browse Businesses
-            </Link>
+            </button>
             <Link
               to="/founders"
               className="block py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors"

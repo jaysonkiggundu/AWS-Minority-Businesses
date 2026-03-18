@@ -36,6 +36,8 @@ const Browse = () => {
       setFilters({ search: searchQuery });
     } else {
       logger.logUserAction('Browse Page Viewed');
+      // Reset all filters when no search query in URL
+      setFilters({});
     }
   }, [searchParams]);
 
