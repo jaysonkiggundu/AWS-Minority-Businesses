@@ -140,21 +140,21 @@ const Index = () => {
             {[
               {
                 quote: "AWS CAMP connected us with enterprise buyers we never would have reached on our own. Our revenue doubled in 6 months.",
-                name: "Aaliyah Johnson",
-                role: "Founder, TechFlow Solutions",
-                initials: "AJ",
+                name: "Jane Doe",
+                role: "Founder, Tech Startup",
+                initials: "JD",
               },
               {
                 quote: "As a procurement manager, this platform makes it effortless to meet our supplier diversity goals with verified, high-quality vendors.",
-                name: "Marcus Rivera",
-                role: "Procurement Lead, Fortune 500",
-                initials: "MR",
+                name: "John Smith",
+                role: "Procurement Lead, Enterprise Co.",
+                initials: "JS",
               },
               {
                 quote: "The AWS accelerator resources alone were worth it. We went from prototype to production in 3 months with their support.",
-                name: "Priya Nair",
-                role: "CEO, MedTech Innovations",
-                initials: "PN",
+                name: "Maria Johnson",
+                role: "CEO, Healthcare Startup",
+                initials: "MJ",
               },
             ].map((t, i) => (
               <Card key={i} className="border-2 hover:border-primary/30 transition-all">
