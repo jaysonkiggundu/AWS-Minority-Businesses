@@ -152,9 +152,9 @@ const Index = () => {
               },
               {
                 quote: "The AWS accelerator resources alone were worth it. We went from prototype to production in 3 months with their support.",
-                name: "Maria Johnson",
+                name: "Jay Doe",
                 role: "CEO, Healthcare Startup",
-                initials: "MJ",
+                initials: "JD",
               },
             ].map((t, i) => (
               <Card key={i} className="border-2 hover:border-primary/30 transition-all">
