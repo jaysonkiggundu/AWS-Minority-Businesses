@@ -2,8 +2,10 @@ import { Business } from "@/types/business";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, MapPin, Users, Calendar, ExternalLink, Verified } from "lucide-react";
+import { Star, MapPin, Users, Calendar, ExternalLink, Verified, Heart } from "lucide-react";
 import { formatLocation, formatEmployeeCount } from "@/lib/businessUtils";
+import { useFavorites } from "@/hooks/useFavorites";
+import { toast } from "sonner";
 
 interface BusinessCardProps {
   business: Business;
@@ -11,16 +13,23 @@ interface BusinessCardProps {
 }
 
 export function BusinessCard({ business, onViewProfile }: BusinessCardProps) {
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const favorited = isFavorite(business.id);
+
   const handleViewProfile = () => {
-    if (onViewProfile) {
-      onViewProfile(business);
-    }
+    if (onViewProfile) onViewProfile(business);
+  };
+
+  const handleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleFavorite(business.id, business.name);
+    toast.success(favorited ? "Removed from favorites" : "Saved to favorites!");
   };
 
   const handleWebsiteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (business.contact.website) {
-      window.open(business.contact.website, '_blank');
+      window.open(business.contact.website, "_blank");
     }
   };
 
@@ -38,10 +47,19 @@ export function BusinessCard({ business, onViewProfile }: BusinessCardProps) {
               <Verified className="h-5 w-5 text-blue-500" title="Verified Business" />
             )}
           </div>
-          <div className="flex items-center gap-1 text-sm">
-            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-            <span className="font-semibold">{business.rating}</span>
-            <span className="text-muted-foreground">({business.reviewCount})</span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleFavorite}
+              aria-label={favorited ? "Remove from favorites" : "Save to favorites"}
+              className="text-muted-foreground hover:text-red-500 transition-colors"
+            >
+              <Heart className={`h-5 w-5 ${favorited ? "fill-red-500 text-red-500" : ""}`} />
+            </button>
+            <div className="flex items-center gap-1 text-sm">
+              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+              <span className="font-semibold">{business.rating}</span>
+              <span className="text-muted-foreground">({business.reviewCount})</span>
+            </div>
           </div>
         </div>
         

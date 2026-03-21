@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
@@ -25,11 +25,13 @@ import { mockBusinesses } from '@/data/mockBusinesses';
 import { logger } from '@/lib/logger';
 import { toast } from 'sonner';
 import { AppBreadcrumb } from '@/components/AppBreadcrumb';
+import { useFavorites } from '@/hooks/useFavorites';
 
 const BusinessProfile = () => {
   const { businessId } = useParams<{ businessId: string }>();
   const navigate = useNavigate();
-  const [isSaved, setIsSaved] = useState(false);
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const isSaved = businessId ? isFavorite(businessId) : false;
 
   // Find business by ID (in production, this would be an API call)
   const business = mockBusinesses.find(b => b.id === businessId);
@@ -52,11 +54,7 @@ const BusinessProfile = () => {
   };
 
   const handleSaveToFavorites = () => {
-    setIsSaved(!isSaved);
-    logger.logUserAction(isSaved ? 'Removed from Favorites' : 'Saved to Favorites', { 
-      businessId,
-      businessName: business?.name 
-    });
+    if (businessId) toggleFavorite(businessId, business?.name);
     toast.success(isSaved ? 'Removed from favorites' : 'Saved to favorites!');
   };
 

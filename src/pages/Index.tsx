@@ -127,6 +127,60 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Testimonials Section */}
+      <section className="py-20 bg-secondary/30">
+        <div className="container">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">What People Are Saying</h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Real stories from founders and supporters in the AWS CAMP community
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                quote: "AWS CAMP connected us with enterprise buyers we never would have reached on our own. Our revenue doubled in 6 months.",
+                name: "Aaliyah Johnson",
+                role: "Founder, TechFlow Solutions",
+                initials: "AJ",
+              },
+              {
+                quote: "As a procurement manager, this platform makes it effortless to meet our supplier diversity goals with verified, high-quality vendors.",
+                name: "Marcus Rivera",
+                role: "Procurement Lead, Fortune 500",
+                initials: "MR",
+              },
+              {
+                quote: "The AWS accelerator resources alone were worth it. We went from prototype to production in 3 months with their support.",
+                name: "Priya Nair",
+                role: "CEO, MedTech Innovations",
+                initials: "PN",
+              },
+            ].map((t, i) => (
+              <Card key={i} className="border-2 hover:border-primary/30 transition-all">
+                <CardContent className="p-6 flex flex-col gap-4">
+                  <div className="flex gap-1">
+                    {Array.from({ length: 5 }).map((_, s) => (
+                      <Star key={s} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                    ))}
+                  </div>
+                  <p className="text-sm text-muted-foreground italic">"{t.quote}"</p>
+                  <div className="flex items-center gap-3 mt-auto">
+                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-sm font-bold">
+                      {t.initials}
+                    </div>
+                    <div>
+                      <div className="text-sm font-semibold">{t.name}</div>
+                      <div className="text-xs text-muted-foreground">{t.role}</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-br from-primary/10 to-primary-glow/10">
         <div className="container">
