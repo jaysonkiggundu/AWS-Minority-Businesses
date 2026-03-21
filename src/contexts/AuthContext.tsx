@@ -1,11 +1,12 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { getCurrentUser, signIn, signOut, signUp, confirmSignUp, fetchAuthSession } from 'aws-amplify/auth';
+import { getCurrentUser, signIn, signOut, signUp, confirmSignUp, fetchAuthSession, fetchUserAttributes } from 'aws-amplify/auth';
 import { logger } from '@/lib/logger';
 
 interface User {
   username: string;
   email?: string;
   userId: string;
+  emailVerified?: boolean;
 }
 
 interface AuthContextType {
@@ -33,11 +34,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       logger.debug('Checking user authentication status');
       const currentUser = await getCurrentUser();
       const session = await fetchAuthSession();
+      const attrs = await fetchUserAttributes();
       
       setUser({
         username: currentUser.username,
         userId: currentUser.userId,
-        email: session.tokens?.idToken?.payload.email as string,
+        email: attrs.email,
+        emailVerified: attrs.email_verified === 'true',
       });
       
       logger.info('User authenticated', { username: currentUser.username });

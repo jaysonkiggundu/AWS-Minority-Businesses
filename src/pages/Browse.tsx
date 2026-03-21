@@ -11,8 +11,9 @@ import { Business, BusinessFilters as Filters } from "@/types/business";
 import { mockBusinesses } from "@/data/mockBusinesses";
 import { filterBusinesses, sortBusinesses, getUniqueCategories, getUniqueDiversityTags } from "@/lib/businessUtils";
 import { useBusinesses } from "@/hooks/useBusinesses";
+import { usePagination } from "@/hooks/usePagination";
 import { useAuth } from "@/contexts/AuthContext";
-import { ArrowUpDown, Grid, List, AlertCircle, Plus } from "lucide-react";
+import { ArrowUpDown, Grid, List, AlertCircle, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
@@ -76,6 +77,9 @@ const Browse = () => {
     
     return sorted;
   }, [businesses, filters, sortBy]);
+
+  const PAGE_SIZE = 6;
+  const { page, setPage, totalPages, paginatedItems } = usePagination(filteredBusinesses, PAGE_SIZE);
 
   const handleViewProfile = (business: Business) => {
     logger.logUserAction('View Business Profile', { businessId: business.id, businessName: business.name });
@@ -200,20 +204,53 @@ const Browse = () => {
 
         {/* Results */}
         {!isLoading && <BusinessList
-          businesses={filteredBusinesses}
+          businesses={paginatedItems}
           viewMode={viewMode}
           onViewProfile={handleViewProfile}
           onClearFilters={handleClearFilters}
         />}
 
-        {/* Load More (for future pagination) */}
-        {filteredBusinesses.length > 0 && (
-          <div className="text-center mt-12">
-            <p className="text-sm text-muted-foreground mb-4">
-              Showing {filteredBusinesses.length} businesses
-            </p>
-            {/* Future: Add pagination or load more functionality */}
+        {/* Pagination */}
+        {!isLoading && totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 mt-10">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Prev
+            </Button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+              <Button
+                key={p}
+                variant={p === page ? "default" : "outline"}
+                size="sm"
+                className="w-9"
+                onClick={() => setPage(p)}
+              >
+                {p}
+              </Button>
+            ))}
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+            >
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </Button>
           </div>
+        )}
+
+        {!isLoading && filteredBusinesses.length > 0 && (
+          <p className="text-center text-sm text-muted-foreground mt-4">
+            Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filteredBusinesses.length)} of {filteredBusinesses.length} businesses
+          </p>
         )}
       </div>
     </div>

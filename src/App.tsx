@@ -8,6 +8,7 @@ import { awsConfig } from './config/aws-config';
 import { AuthProvider } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { EmailVerificationBanner } from './components/EmailVerificationBanner';
 import Index from "./pages/Index";
 import Browse from "./pages/Browse";
 import BusinessProfile from "./pages/BusinessProfile";
@@ -48,6 +49,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <ErrorBoundary>
+              <EmailVerificationBanner />
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/browse" element={<Browse />} />
