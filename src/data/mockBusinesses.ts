@@ -3,18 +3,18 @@ import { Business } from "@/types/business";
 export const mockBusinesses: Business[] = [
   {
     id: "1",
-    name: "TechFlow Solutions",
-    description: "Leading cloud infrastructure and AI solutions provider specializing in scalable enterprise applications and machine learning platforms.",
+    name: "Apex Cloud Labs",
+    description: "Fictional cloud infrastructure and AI solutions provider specializing in scalable enterprise applications and machine learning platforms.",
     category: "Technology",
     location: {
       city: "San Francisco",
       state: "CA",
-      address: "123 Innovation Drive"
+      address: "100 Placeholder Drive"
     },
     contact: {
-      email: "contact@techflow.com",
-      phone: "(415) 555-0123",
-      website: "https://techflow.com"
+      email: "contact@example-apexcloudlabs.fake",
+      phone: "(415) 555-0101",
+      website: "https://example.com"
     },
     diversity: ["Black-owned", "Female-founded"],
     rating: 4.8,
@@ -27,18 +27,18 @@ export const mockBusinesses: Business[] = [
   },
   {
     id: "2",
-    name: "Verde Packaging Co",
-    description: "Sustainable packaging solutions and eco-friendly business consulting for companies looking to reduce their environmental impact.",
+    name: "Greenleaf Packaging Co",
+    description: "Fictional sustainable packaging solutions and eco-friendly business consulting for companies looking to reduce their environmental impact.",
     category: "Manufacturing",
     location: {
       city: "Austin",
       state: "TX",
-      address: "456 Green Street"
+      address: "200 Placeholder Street"
     },
     contact: {
-      email: "info@verdepackaging.com",
-      phone: "(512) 555-0456",
-      website: "https://verdepackaging.com"
+      email: "info@example-greenleafpkg.fake",
+      phone: "(512) 555-0202",
+      website: "https://example.com"
     },
     diversity: ["Latino-owned"],
     rating: 4.9,
@@ -51,18 +51,18 @@ export const mockBusinesses: Business[] = [
   },
   {
     id: "3",
-    name: "Prism Creative Studio",
-    description: "Award-winning branding and digital design agency specializing in inclusive design and multicultural marketing campaigns.",
+    name: "Mosaic Creative Studio",
+    description: "Fictional branding and digital design agency specializing in inclusive design and multicultural marketing campaigns.",
     category: "Professional Services",
     location: {
       city: "New York",
       state: "NY",
-      address: "789 Design Avenue"
+      address: "300 Placeholder Avenue"
     },
     contact: {
-      email: "hello@prismcreative.com",
-      phone: "(212) 555-0789",
-      website: "https://prismcreative.com"
+      email: "hello@example-mosaiccreative.fake",
+      phone: "(212) 555-0303",
+      website: "https://example.com"
     },
     diversity: ["LGBTQIA+-owned", "Female-founded"],
     rating: 4.7,
@@ -75,18 +75,18 @@ export const mockBusinesses: Business[] = [
   },
   {
     id: "4",
-    name: "MedTech Innovations",
-    description: "Healthcare technology solutions focusing on telemedicine platforms and medical device integration for underserved communities.",
+    name: "CareLink Health Tech",
+    description: "Fictional healthcare technology solutions focusing on telemedicine platforms and medical device integration for underserved communities.",
     category: "Healthcare",
     location: {
       city: "Atlanta",
       state: "GA",
-      address: "321 Health Plaza"
+      address: "400 Placeholder Plaza"
     },
     contact: {
-      email: "contact@medtechinnovations.com",
-      phone: "(404) 555-0321",
-      website: "https://medtechinnovations.com"
+      email: "contact@example-carelinkhealth.fake",
+      phone: "(404) 555-0404",
+      website: "https://example.com"
     },
     diversity: ["Black-owned"],
     rating: 4.6,
@@ -99,18 +99,18 @@ export const mockBusinesses: Business[] = [
   },
   {
     id: "5",
-    name: "Sakura Financial Advisors",
-    description: "Comprehensive financial planning and investment advisory services with expertise in small business financing and retirement planning.",
+    name: "Horizon Financial Group",
+    description: "Fictional comprehensive financial planning and investment advisory services with expertise in small business financing and retirement planning.",
     category: "Finance",
     location: {
       city: "Seattle",
       state: "WA",
-      address: "654 Financial Center"
+      address: "500 Placeholder Center"
     },
     contact: {
-      email: "advisors@sakurafinancial.com",
-      phone: "(206) 555-0654",
-      website: "https://sakurafinancial.com"
+      email: "advisors@example-horizonfinancial.fake",
+      phone: "(206) 555-0505",
+      website: "https://example.com"
     },
     diversity: ["Asian-owned", "Female-founded"],
     rating: 4.9,
@@ -123,18 +123,18 @@ export const mockBusinesses: Business[] = [
   },
   {
     id: "6",
-    name: "Urban Harvest Market",
-    description: "Organic grocery store and community market featuring locally-sourced produce and products from minority-owned suppliers.",
+    name: "Roots Community Market",
+    description: "Fictional organic grocery store and community market featuring locally-sourced produce and products from minority-owned suppliers.",
     category: "Retail",
     location: {
       city: "Chicago",
       state: "IL",
-      address: "987 Market Street"
+      address: "600 Placeholder Market"
     },
     contact: {
-      email: "info@urbanharvest.com",
-      phone: "(312) 555-0987",
-      website: "https://urbanharvest.com"
+      email: "info@example-rootsmarket.fake",
+      phone: "(312) 555-0606",
+      website: "https://example.com"
     },
     diversity: ["Black-owned"],
     rating: 4.5,
@@ -147,18 +147,18 @@ export const mockBusinesses: Business[] = [
   },
   {
     id: "7",
-    name: "Phoenix Construction Group",
-    description: "Commercial and residential construction company specializing in sustainable building practices and LEED-certified projects.",
+    name: "Ironwood Construction Group",
+    description: "Fictional commercial and residential construction company specializing in sustainable building practices and LEED-certified projects.",
     category: "Construction",
     location: {
       city: "Phoenix",
       state: "AZ",
-      address: "147 Builder's Way"
+      address: "700 Placeholder Way"
     },
     contact: {
-      email: "projects@phoenixconstruction.com",
-      phone: "(602) 555-0147",
-      website: "https://phoenixconstruction.com"
+      email: "projects@example-ironwoodconstruction.fake",
+      phone: "(602) 555-0707",
+      website: "https://example.com"
     },
     diversity: ["Latino-owned", "Veteran-owned"],
     rating: 4.8,
@@ -171,18 +171,18 @@ export const mockBusinesses: Business[] = [
   },
   {
     id: "8",
-    name: "Spice Route Catering",
-    description: "Premium catering services specializing in fusion cuisine and corporate events with a focus on authentic international flavors.",
+    name: "Saffron Table Catering",
+    description: "Fictional premium catering services specializing in fusion cuisine and corporate events with a focus on authentic international flavors.",
     category: "Food & Beverage",
     location: {
       city: "Miami",
       state: "FL",
-      address: "258 Culinary Boulevard"
+      address: "800 Placeholder Boulevard"
     },
     contact: {
-      email: "events@spiceroute.com",
-      phone: "(305) 555-0258",
-      website: "https://spiceroute.com"
+      email: "events@example-saffroncatering.fake",
+      phone: "(305) 555-0808",
+      website: "https://example.com"
     },
     diversity: ["Asian-owned", "Female-founded"],
     rating: 4.7,
