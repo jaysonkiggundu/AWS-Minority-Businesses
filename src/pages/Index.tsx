@@ -1,39 +1,16 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Search, TrendingUp, Users, Award, ArrowRight, Star } from "lucide-react";
+import { TrendingUp, Users, Award, ArrowRight, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { AWSLogo } from "@/components/AWSLogo";
-import { logger } from "@/lib/logger";
-import { toast } from "sonner";
+import { OnboardingModal } from "@/components/OnboardingModal";
+import { SearchAutocomplete } from "@/components/SearchAutocomplete";
 
 const Index = () => {
-  const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (searchQuery.trim()) {
-      logger.logUserAction('Homepage Search', { query: searchQuery });
-      toast.success(`Searching for "${searchQuery}"...`);
-      // Navigate to Browse page with search query as URL parameter
-      navigate(`/browse?search=${encodeURIComponent(searchQuery.trim())}`);
-    } else {
-      toast.error('Please enter a search term');
-    }
-  };
-
-  const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleSearch(e as any);
-    }
-  };
   return (
     <div className="min-h-screen bg-background">
+      <OnboardingModal />
       <Navigation />
       
       {/* Hero Section */}
@@ -69,32 +46,7 @@ const Index = () => {
             </div>
             
             {/* Search Bar */}
-            <div className="max-w-2xl mx-auto">
-              <form onSubmit={handleSearch}>
-                <div className="relative">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                  <Input
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyPress={handleSearchKeyPress}
-                    placeholder="Search by business name, category, or location..."
-                    className="pl-12 h-14 text-lg border-2 focus:border-primary"
-                  />
-                  {searchQuery && (
-                    <Button
-                      type="submit"
-                      size="sm"
-                      className="absolute right-2 top-1/2 -translate-y-1/2"
-                    >
-                      Search
-                    </Button>
-                  )}
-                </div>
-              </form>
-              <p className="text-sm text-muted-foreground mt-2 text-center">
-                Try searching for "technology", "San Francisco", or "Black-owned"
-              </p>
-            </div>
+            <SearchAutocomplete />
           </div>
         </div>
       </section>
