@@ -136,7 +136,7 @@ export const mockBusinesses: Business[] = [
       phone: "(312) 555-0606",
       website: "https://example.com"
     },
-    diversity: ["Minority-owned"],
+    diversity: ["Black-owned"],
     rating: 4.5,
     reviewCount: 342,
     verified: true,

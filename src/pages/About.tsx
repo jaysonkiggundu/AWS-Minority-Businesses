@@ -57,7 +57,7 @@ const About = () => {
               <div>
                 <h3 className="font-semibold mb-2">Diverse-Owned Businesses</h3>
                 <p className="text-muted-foreground">
-                  Minority, female, Latino, and LGBTQIA+ founders building innovative businesses across all industries. We help you get discovered, connect with customers, access capital, and participate in AWS accelerator programs.
+                  Black, female, Latino, and LGBTQIA+ founders building innovative businesses across all industries. We help you get discovered, connect with customers, access capital, and participate in AWS accelerator programs.
                 </p>
               </div>
               <div>
