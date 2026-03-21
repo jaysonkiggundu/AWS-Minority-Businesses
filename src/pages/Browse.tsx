@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { BusinessList } from "@/components/BusinessList";
+import { BusinessListSkeleton } from "@/components/BusinessCardSkeleton";
 import { BusinessFilters } from "@/components/BusinessFilters";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -125,11 +126,7 @@ const Browse = () => {
         </div>
 
         {/* Loading State */}
-        {isLoading && (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-          </div>
-        )}
+        {isLoading && <BusinessListSkeleton count={6} viewMode={viewMode} />}
 
         {/* Error State */}
         {error && (
@@ -200,12 +197,12 @@ const Browse = () => {
         </div>
 
         {/* Results */}
-        <BusinessList
+        {!isLoading && <BusinessList
           businesses={filteredBusinesses}
           viewMode={viewMode}
           onViewProfile={handleViewProfile}
           onClearFilters={handleClearFilters}
-        />
+        />}
 
         {/* Load More (for future pagination) */}
         {filteredBusinesses.length > 0 && (

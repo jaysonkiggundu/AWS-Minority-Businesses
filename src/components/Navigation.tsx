@@ -1,11 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, User, LogOut } from "lucide-react";
+import { Menu, User, LogOut } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthModal } from "@/components/AuthModal";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AWSLogo } from "@/components/AWSLogo";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,7 +27,6 @@ const Navigation = () => {
   };
 
   const handleBrowse = () => {
-    // Force a full page reload to reset all state
     window.location.href = '/browse';
   };
 
@@ -53,7 +53,7 @@ const Navigation = () => {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-6">
-          <button 
+          <button
             onClick={handleBrowse}
             className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors"
           >
@@ -65,7 +65,7 @@ const Navigation = () => {
           <Link to="/about" className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors">
             About
           </Link>
-          
+
           {isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -99,77 +99,73 @@ const Navigation = () => {
           <ThemeToggle />
         </div>
 
-        {/* Mobile Menu Button */}
-        <button
-          className="md:hidden"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
-          {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
+        {/* Mobile Navigation - Slide-in Sheet */}
+        <div className="md:hidden">
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <button aria-label="Open menu">
+                <Menu className="h-6 w-6" />
+              </button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-72 pt-10">
+              <nav className="flex flex-col space-y-1">
+                <button
+                  onClick={() => { handleBrowse(); setMobileMenuOpen(false); }}
+                  className="text-left px-3 py-3 rounded-md text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-accent transition-colors"
+                >
+                  Browse Businesses
+                </button>
+                <Link
+                  to="/founders"
+                  className="px-3 py-3 rounded-md text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-accent transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  For Founders
+                </Link>
+                <Link
+                  to="/about"
+                  className="px-3 py-3 rounded-md text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-accent transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  About
+                </Link>
+              </nav>
+
+              <div className="mt-6 pt-6 border-t border-border/40 flex flex-col space-y-2">
+                {isAuthenticated ? (
+                  <>
+                    <p className="px-3 text-sm text-muted-foreground">Signed in as {user?.username}</p>
+                    <Button variant="ghost" size="sm" className="w-full justify-start" asChild>
+                      <Link to="/founders" onClick={() => setMobileMenuOpen(false)}>
+                        <User className="mr-2 h-4 w-4" />
+                        Dashboard
+                      </Link>
+                    </Button>
+                    <Button variant="ghost" size="sm" className="w-full justify-start" onClick={handleSignOut}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Sign Out
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button variant="ghost" size="sm" className="w-full" onClick={() => { setAuthModalOpen(true); setMobileMenuOpen(false); }}>
+                      Sign In
+                    </Button>
+                    <Button size="sm" className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90" onClick={() => { setAuthModalOpen(true); setMobileMenuOpen(false); }}>
+                      Get Started
+                    </Button>
+                  </>
+                )}
+              </div>
+
+              <div className="mt-6 pt-6 border-t border-border/40">
+                <ThemeToggle />
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
 
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden border-t border-border/40 bg-background/95 backdrop-blur">
-          <div className="container py-4 space-y-3">
-            <button
-              onClick={() => {
-                handleBrowse();
-                setMobileMenuOpen(false);
-              }}
-              className="block w-full text-left py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors"
-            >
-              Browse Businesses
-            </button>
-            <Link
-              to="/founders"
-              className="block py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              For Founders
-            </Link>
-            <Link
-              to="/about"
-              className="block py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              About
-            </Link>
-            <div className="flex flex-col space-y-2 pt-2">
-              {isAuthenticated ? (
-                <>
-                  <div className="py-2 text-sm font-medium">
-                    Signed in as {user?.username}
-                  </div>
-                  <Button variant="ghost" size="sm" className="w-full justify-start" asChild>
-                    <Link to="/founders" onClick={() => setMobileMenuOpen(false)}>
-                      <User className="mr-2 h-4 w-4" />
-                      Dashboard
-                    </Link>
-                  </Button>
-                  <Button variant="ghost" size="sm" className="w-full justify-start" onClick={handleSignOut}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Sign Out
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button variant="ghost" size="sm" className="w-full" onClick={() => setAuthModalOpen(true)}>
-                    Sign In
-                  </Button>
-                  <Button size="sm" className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90" onClick={() => setAuthModalOpen(true)}>
-                    Get Started
-                  </Button>
-                </>
-              )}
-            </div>
-            <div className="pt-4 border-t border-border/40">
-              <ThemeToggle />
-            </div>
-          </div>
-        </div>
-      )}
-      
       <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
     </nav>
   );
