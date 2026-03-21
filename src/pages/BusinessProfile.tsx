@@ -24,6 +24,7 @@ import {
 import { mockBusinesses } from '@/data/mockBusinesses';
 import { logger } from '@/lib/logger';
 import { toast } from 'sonner';
+import { AppBreadcrumb } from '@/components/AppBreadcrumb';
 
 const BusinessProfile = () => {
   const { businessId } = useParams<{ businessId: string }>();
@@ -130,6 +131,11 @@ const BusinessProfile = () => {
       <Navigation />
       
       <div className="container py-8">
+        <AppBreadcrumb crumbs={[
+          { label: "Browse Businesses", href: "/browse" },
+          { label: business?.name ?? "Business Profile" }
+        ]} />
+
         {/* Back Button */}
         <Button
           variant="ghost"

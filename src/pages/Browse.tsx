@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { BusinessList } from "@/components/BusinessList";
 import { BusinessListSkeleton } from "@/components/BusinessCardSkeleton";
+import { AppBreadcrumb } from "@/components/AppBreadcrumb";
 import { BusinessFilters } from "@/components/BusinessFilters";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -111,6 +112,7 @@ const Browse = () => {
       <Navigation />
       
       <div className="container py-8">
+        <AppBreadcrumb crumbs={[{ label: "Browse Businesses" }]} />
         <div className="mb-8 flex justify-between items-start">
           <div>
             <h1 className="text-4xl font-bold mb-4">Discover Diverse Businesses</h1>
