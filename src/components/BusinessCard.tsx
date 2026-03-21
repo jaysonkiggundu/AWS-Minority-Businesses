@@ -6,6 +6,7 @@ import { Star, MapPin, Users, Calendar, ExternalLink, Verified, Heart } from "lu
 import { formatLocation, formatEmployeeCount } from "@/lib/businessUtils";
 import { useFavorites } from "@/hooks/useFavorites";
 import { toast } from "sonner";
+import { ShareMenu } from "@/components/ShareMenu";
 
 interface BusinessCardProps {
   business: Business;
@@ -34,7 +35,7 @@ export function BusinessCard({ business, onViewProfile }: BusinessCardProps) {
   };
 
   return (
-    <Card className="hover:shadow-lg transition-all cursor-pointer group" onClick={handleViewProfile}>
+    <Card className="hover:shadow-lg transition-all cursor-pointer group card-shimmer" onClick={handleViewProfile}>
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
@@ -121,9 +122,13 @@ export function BusinessCard({ business, onViewProfile }: BusinessCardProps) {
         <Button className="flex-1" onClick={handleViewProfile}>
           View Profile
         </Button>
+        <ShareMenu
+          title={business.name}
+          url={`${window.location.origin}/business/${business.id}`}
+        />
         {business.contact.website && (
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="icon"
             onClick={handleWebsiteClick}
             title="Visit Website"

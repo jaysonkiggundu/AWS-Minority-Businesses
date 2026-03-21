@@ -18,7 +18,6 @@ import {
   CheckCircle,
   ExternalLink,
   Heart,
-  Share2,
   MessageCircle
 } from 'lucide-react';
 import { mockBusinesses } from '@/data/mockBusinesses';
@@ -26,6 +25,7 @@ import { logger } from '@/lib/logger';
 import { toast } from 'sonner';
 import { AppBreadcrumb } from '@/components/AppBreadcrumb';
 import { useFavorites } from '@/hooks/useFavorites';
+import { ShareMenu } from '@/components/ShareMenu';
 
 const BusinessProfile = () => {
   const { businessId } = useParams<{ businessId: string }>();
@@ -56,38 +56,6 @@ const BusinessProfile = () => {
   const handleSaveToFavorites = () => {
     if (businessId) toggleFavorite(businessId, business?.name);
     toast.success(isSaved ? 'Removed from favorites' : 'Saved to favorites!');
-  };
-
-  const handleShareProfile = async () => {
-    logger.logUserAction('Share Profile Clicked', { 
-      businessId,
-      businessName: business?.name 
-    });
-
-    // Try to use Web Share API if available
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: business?.name,
-          text: `Check out ${business?.name} on AWS CAMP`,
-          url: window.location.href,
-        });
-        toast.success('Shared successfully!');
-      } catch (error) {
-        // User cancelled or error occurred
-        if ((error as Error).name !== 'AbortError') {
-          toast.error('Failed to share');
-        }
-      }
-    } else {
-      // Fallback: Copy to clipboard
-      try {
-        await navigator.clipboard.writeText(window.location.href);
-        toast.success('Link copied to clipboard!');
-      } catch (error) {
-        toast.error('Failed to copy link');
-      }
-    }
   };
 
   const handlePhoneClick = () => {
@@ -352,15 +320,11 @@ const BusinessProfile = () => {
                   <Heart className={`mr-2 h-4 w-4 ${isSaved ? 'fill-current' : ''}`} />
                   {isSaved ? 'Saved to Favorites' : 'Save to Favorites'}
                 </Button>
-                <Button 
-                  variant="outline" 
-                  className="w-full" 
-                  size="lg"
-                  onClick={handleShareProfile}
-                >
-                  <Share2 className="mr-2 h-4 w-4" />
-                  Share Profile
-                </Button>
+                <ShareMenu
+                  title={business.name}
+                  url={window.location.href}
+                  variant="full"
+                />
               </CardContent>
             </Card>
 
