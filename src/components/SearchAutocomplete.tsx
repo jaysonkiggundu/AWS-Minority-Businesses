@@ -126,7 +126,7 @@ export function SearchAutocomplete() {
       )}
 
       <p className="text-sm text-muted-foreground mt-2 text-center">
-        Try searching for "technology", "San Francisco", or "Black-owned"
+        Try searching for "technology", "San Francisco", or "Minority-owned"
       </p>
     </div>
   );

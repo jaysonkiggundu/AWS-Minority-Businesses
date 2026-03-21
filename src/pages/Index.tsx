@@ -29,7 +29,7 @@ const Index = () => {
             </div>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
               Your Campus. Your Marketplace. Your Connection. Discover and support diverse-owned businesses 
-              through AWS's platform for Black, female, Latino, and LGBTQIA+ founders.
+              through AWS's platform for minority, female, Latino, and LGBTQIA+ founders.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
               <Link to="/browse">

@@ -21,7 +21,7 @@ const About = () => {
               {
                 icon: Target,
                 title: "The Challenge",
-                description: "Diverse-owned businesses receive less than 2% of venture capital, and fewer than 100 Black-owned businesses generate over $100M annually. This creates a massive gap between corporate supplier diversity goals and available capacity.",
+                description: "Diverse-owned businesses receive less than 2% of venture capital, and fewer than 100 minority-owned businesses generate over $100M annually. This creates a massive gap between corporate supplier diversity goals and available capacity.",
               },
               {
                 icon: Heart,
@@ -57,7 +57,7 @@ const About = () => {
               <div>
                 <h3 className="font-semibold mb-2">Diverse-Owned Businesses</h3>
                 <p className="text-muted-foreground">
-                  Black, female, Latino, and LGBTQIA+ founders building innovative businesses across all industries. We help you get discovered, connect with customers, access capital, and participate in AWS accelerator programs.
+                  Minority, female, Latino, and LGBTQIA+ founders building innovative businesses across all industries. We help you get discovered, connect with customers, access capital, and participate in AWS accelerator programs.
                 </p>
               </div>
               <div>
@@ -94,7 +94,7 @@ const About = () => {
                 <div className="text-4xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent mb-2">
                   100+
                 </div>
-                <p className="text-sm text-muted-foreground">Our goal for Black-owned $100M+ businesses</p>
+                <p className="text-sm text-muted-foreground">Our goal for minority-owned $100M+ businesses</p>
               </div>
             </div>
           </div>

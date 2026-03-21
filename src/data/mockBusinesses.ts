@@ -16,7 +16,7 @@ export const mockBusinesses: Business[] = [
       phone: "(415) 555-0101",
       website: "https://example.com"
     },
-    diversity: ["Black-owned", "Female-founded"],
+    diversity: ["Minority-owned", "Female-founded"],
     rating: 4.8,
     reviewCount: 124,
     verified: true,
@@ -88,7 +88,7 @@ export const mockBusinesses: Business[] = [
       phone: "(404) 555-0404",
       website: "https://example.com"
     },
-    diversity: ["Black-owned"],
+    diversity: ["Minority-owned"],
     rating: 4.6,
     reviewCount: 78,
     verified: true,
@@ -136,7 +136,7 @@ export const mockBusinesses: Business[] = [
       phone: "(312) 555-0606",
       website: "https://example.com"
     },
-    diversity: ["Black-owned"],
+    diversity: ["Minority-owned"],
     rating: 4.5,
     reviewCount: 342,
     verified: true,

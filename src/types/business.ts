@@ -26,7 +26,7 @@ export interface Business {
 }
 
 export type DiversityTag = 
-  | "Black-owned"
+  | "Minority-owned"
   | "Female-founded" 
   | "Latino-owned"
   | "LGBTQIA+-owned"

@@ -6,8 +6,8 @@ import { Rocket, DollarSign, Users, BarChart, ArrowRight, CheckCircle } from "lu
 const Founders = () => {
   const programs = [
     {
-      name: "Black Business Accelerator",
-      description: "Dedicated program for Black-owned businesses with access to AWS credits, mentorship, and investor networks.",
+      name: "Minority Business Accelerator",
+      description: "Dedicated program for minority-owned businesses with access to AWS credits, mentorship, and investor networks.",
       benefits: ["$100K AWS credits", "1:1 mentorship", "Investor introductions", "Technical workshops"],
       icon: Rocket,
     },

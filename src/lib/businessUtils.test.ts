@@ -18,7 +18,7 @@ const mockBusinesses: Business[] = [
     category: 'Technology',
     location: { city: 'San Francisco', state: 'CA' },
     contact: {},
-    diversity: ['Black-owned', 'Female-founded'],
+    diversity: ['Minority-owned', 'Female-founded'],
     rating: 4.8,
     reviewCount: 124,
     verified: true,
@@ -96,7 +96,7 @@ describe('filterBusinesses', () => {
 
   it('filters by multiple diversity tags', () => {
     const result = filterBusinesses(mockBusinesses, { 
-      diversity: ['Black-owned', 'Latino-owned'] 
+      diversity: ['Minority-owned', 'Latino-owned'] 
     });
     expect(result).toHaveLength(2);
   });
@@ -196,7 +196,7 @@ describe('getUniqueCategories', () => {
 describe('getUniqueDiversityTags', () => {
   it('returns unique diversity tags sorted alphabetically', () => {
     const result = getUniqueDiversityTags(mockBusinesses);
-    expect(result).toEqual(['Black-owned', 'Female-founded', 'LGBTQIA+-owned', 'Latino-owned']);
+    expect(result).toEqual(['Female-founded', 'LGBTQIA+-owned', 'Latino-owned', 'Minority-owned']);
   });
 
   it('handles empty array', () => {
